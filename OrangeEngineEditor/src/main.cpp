@@ -1,9 +1,20 @@
+#include "OrangeEngineCore/Application.h"
+
 #include <iostream>
+#include <memory>
 
-#include "OrangeEngineCore/Utils/test.h"
-
-int main()
+class Game : public OrangeEngine::Application
 {
-	OrangeEngine::checkGLFW();
+	void onUpdate() override
+	{
+
+	}
+};
+
+int main(int argc, char** argv)
+{
+	auto game = std::make_unique<Game>();
+	int returnCode = game->start(1024, 768, "The coolest game ever!", argv);
 	std::cin.get();
+	return returnCode;
 }
