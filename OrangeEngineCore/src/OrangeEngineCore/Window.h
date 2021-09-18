@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace OrangeEngine
 {
@@ -46,5 +46,6 @@ namespace OrangeEngine
 
 		GLFWwindow* m_pWindow = nullptr;
 		WindowData m_data;
+		float m_bg_color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	};
 }

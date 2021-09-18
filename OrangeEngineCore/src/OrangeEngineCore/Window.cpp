@@ -97,7 +97,7 @@ namespace OrangeEngine
 
 	void Window::onUpdate()
 	{
-		glClearColor(1, 0.6, 0, 1);
+		glClearColor(m_bg_color[0], m_bg_color[1], m_bg_color[2], m_bg_color[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -109,6 +109,10 @@ namespace OrangeEngine
 		ImGui::NewFrame();
 
 		ImGui::ShowDemoWindow();
+
+		ImGui::Begin("Background Color");
+		ImGui::ColorEdit4("Color Picker", m_bg_color);
+		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
