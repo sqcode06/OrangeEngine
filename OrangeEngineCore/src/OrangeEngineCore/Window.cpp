@@ -2,9 +2,12 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <spdlog/spdlog.h>
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
+
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_glfw.h>
 
 namespace OrangeEngine
 {
@@ -18,6 +21,7 @@ namespace OrangeEngine
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGui_ImplOpenGL3_Init();
+		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 	}
 
 	Window::~Window()
@@ -93,7 +97,7 @@ namespace OrangeEngine
 
 	void Window::onUpdate()
 	{
-		glClearColor(1, 1, 0, 1);
+		glClearColor(1, 0.6, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -101,6 +105,7 @@ namespace OrangeEngine
 		io.DisplaySize.y = m_data.m_height;
 
 		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		ImGui::ShowDemoWindow();

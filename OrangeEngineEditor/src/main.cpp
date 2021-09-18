@@ -1,7 +1,7 @@
-#include "OrangeEngineCore/Application.h"
-
 #include <iostream>
 #include <memory>
+
+#include "OrangeEngineCore/Application.h"
 
 class Game : public OrangeEngine::Application
 {

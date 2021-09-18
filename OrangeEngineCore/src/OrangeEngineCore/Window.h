@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Event.h"
+#include "../OrangeEngineCore/includes/OrangeEngineCore/Event.h"
 
 #include <string>
 #include <functional>
