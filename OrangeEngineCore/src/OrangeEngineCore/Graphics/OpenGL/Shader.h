@@ -6,8 +6,8 @@ namespace OrangeEngine
 	{
 	public:
 		Shader(const char* vertex_shader_src, const char* fragment_shader_src);
-		Shader(Shader&&);
-		Shader& operator=(Shader&&);
+		Shader(Shader&&) noexcept;
+		Shader& operator=(Shader&&) noexcept;
 		~Shader();
 
 		Shader() = delete;

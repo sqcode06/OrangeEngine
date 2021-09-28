@@ -1,5 +1,7 @@
 #include "OrangeEngineCore/Window.h"
 
+#include "OrangeEngineCore/Graphics/OpenGL/Shader.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -12,6 +14,39 @@
 namespace OrangeEngine
 {
 	static bool s_GLFW_initialized = false;
+
+	GLfloat points[] = {
+		0.0f,  0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+	   -0.5f, -0.5f, 0.0f
+	};
+
+	GLfloat colors[] = {
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 1.0f
+	};
+
+	const char* vertex_shader =
+		"#version 460\n"
+		"layout(location = 0) in vec3 vertex_position;"
+		"layout(location = 1) in vec3 vertex_color;"
+		"out vec3 color;"
+		"void main() {"
+		"   color = vertex_color;"
+		"   gl_Position = vec4(vertex_position, 1.0);"
+		"}";
+
+	const char* fragment_shader =
+		"#version 460\n"
+		"in vec3 color;"
+		"out vec4 frag_color;"
+		"void main() {"
+		"   frag_color = vec4(color, 1.0);"
+		"}";
+
+	std::unique_ptr<Shader> p_shader;
+	GLuint vao;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -86,6 +121,39 @@ namespace OrangeEngine
 				data.eventCallbackFn(event);
 			}
 		);
+		glfwSetFramebufferSizeCallback(m_pWindow,
+			[](GLFWwindow* pWindow, int width, int height)
+			{
+				glViewport(0, 0, width, height);
+			}
+		);
+
+		p_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
+		if (!p_shader->isCompiled())
+		{
+			return false;
+		}
+
+		GLuint points_vbo = 0;
+		glGenBuffers(1, &points_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+		GLuint colors_vbo = 0;
+		glGenBuffers(1, &colors_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
 	int Window::shutdown()
@@ -99,6 +167,10 @@ namespace OrangeEngine
 	{
 		glClearColor(m_bg_color[0], m_bg_color[1], m_bg_color[2], m_bg_color[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		p_shader->bind();
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize.x = m_data.m_width;

@@ -88,7 +88,7 @@ namespace OrangeEngine
 		glUseProgram(0);
 	}
 
-	Shader& Shader::operator=(Shader&& shader)
+	Shader& Shader::operator=(Shader&& shader) noexcept
 	{
 		glDeleteProgram(m_id);
 		m_id = shader.m_id;
@@ -99,7 +99,7 @@ namespace OrangeEngine
 		return *this;
 	}
 
-	Shader::Shader(Shader&& shader)
+	Shader::Shader(Shader&& shader) noexcept
 	{
 		m_id = shader.m_id;
 		m_isCompiled = shader.m_isCompiled;
