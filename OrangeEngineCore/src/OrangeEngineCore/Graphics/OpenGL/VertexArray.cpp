@@ -48,10 +48,18 @@ namespace OrangeEngine
 		bind();
 		vertex_buffer.bind();
 
-		//TODO: use VBO layout
-		glEnableVertexAttribArray(m_items_quantity);
-		glVertexAttribPointer(m_items_quantity, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-		m_items_quantity++;
+		for (const BufferItem& current_item : vertex_buffer.get_layout().get_items())
+		{
+			glEnableVertexAttribArray(m_items_quantity);
+			glVertexAttribPointer(
+				m_items_quantity,
+				static_cast<GLint>(current_item.components_quantity),
+				current_item.component_type,
+				GL_FALSE,
+				static_cast<GLsizei>(vertex_buffer.get_layout().get_stride()),
+				reinterpret_cast<const void*>(current_item.offset)
+			);
+			m_items_quantity++;
+		}
 	}
 }

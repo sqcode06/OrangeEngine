@@ -11,6 +11,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/OrangeEngineCore/Window.h
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.h
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h
+	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
@@ -18,6 +19,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Window.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp
 )
 
 set(ENGINE_ALL_SOURCES

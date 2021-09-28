@@ -2,6 +2,7 @@
 
 #include "OrangeEngineCore/Graphics/OpenGL/Shader.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
+#include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -28,6 +29,12 @@ namespace OrangeEngine
 		0.0f, 0.0f, 1.0f
 	};
 
+	GLfloat positions_and_colors[] = {
+		 0.0f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,
+		 0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 1.0f,
+		-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 1.0f
+	};
+
 	const char* vertex_shader =
 		"#version 460\n"
 		"layout(location = 0) in vec3 vertex_position;"
@@ -47,9 +54,13 @@ namespace OrangeEngine
 		"}";
 
 	std::unique_ptr<Shader> p_shader;
+
 	std::unique_ptr<VertexBuffer> p_points_vbo;
 	std::unique_ptr<VertexBuffer> p_colors_vbo;
-	GLuint vao;
+	std::unique_ptr<VertexArray> p_vao_2vbo;
+
+	std::unique_ptr<VertexBuffer> p_positions_and_colors_vbo;
+	std::unique_ptr<VertexArray> p_vao_1vbo;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -137,19 +148,28 @@ namespace OrangeEngine
 			return false;
 		}
 
-		p_points_vbo = std::make_unique<VertexBuffer>(points, sizeof(points));
-		p_colors_vbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
+		BufferLayout buffer_layout_1vec3
+		{
+			ShaderDataType::Float3
+		};
 
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+		p_vao_2vbo = std::make_unique<VertexArray>();
+		p_points_vbo = std::make_unique<VertexBuffer>(points, sizeof(points), buffer_layout_1vec3);
+		p_colors_vbo = std::make_unique<VertexBuffer>(colors, sizeof(colors), buffer_layout_1vec3);
 
-		glEnableVertexAttribArray(0);
-		p_points_vbo->bind();
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		p_vao_2vbo->add_buffer(*p_points_vbo);
+		p_vao_2vbo->add_buffer(*p_colors_vbo);
 
-		glEnableVertexAttribArray(1);
-		p_colors_vbo->bind();
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		BufferLayout buffer_layout_2vec3
+		{
+			ShaderDataType::Float3,
+			ShaderDataType::Float3
+		};
+
+		p_vao_1vbo = std::make_unique<VertexArray>();
+		p_positions_and_colors_vbo = std::make_unique<VertexBuffer>(positions_and_colors, sizeof(positions_and_colors), buffer_layout_2vec3);
+
+		p_vao_1vbo->add_buffer(*p_positions_and_colors_vbo);
 	}
 
 	int Window::shutdown()
@@ -164,10 +184,6 @@ namespace OrangeEngine
 		glClearColor(m_bg_color[0], m_bg_color[1], m_bg_color[2], m_bg_color[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		p_shader->bind();
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize.x = m_data.m_width;
 		io.DisplaySize.y = m_data.m_height;
@@ -180,6 +196,23 @@ namespace OrangeEngine
 
 		ImGui::Begin("Background Color");
 		ImGui::ColorEdit4("Color Picker", m_bg_color);
+
+		static bool use_2_vbo = true;
+		ImGui::Checkbox("Two VBOs?", &use_2_vbo);
+
+		if (use_2_vbo)
+		{
+			p_shader->bind();
+			p_vao_2vbo->bind();
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+		}
+		else
+		{
+			p_shader->bind();
+			p_vao_1vbo->bind();
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+		}
+
 		ImGui::End();
 
 		ImGui::Render();
