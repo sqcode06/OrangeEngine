@@ -10,12 +10,14 @@ set(ENGINE_PUBLIC_INCLUDES
 set(ENGINE_PRIVATE_INCLUDES 
 	src/OrangeEngineCore/Window.h
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.h
+	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
 	src/OrangeEngineCore/Application.cpp
 	src/OrangeEngineCore/Window.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.cpp
 )
 
 set(ENGINE_ALL_SOURCES
