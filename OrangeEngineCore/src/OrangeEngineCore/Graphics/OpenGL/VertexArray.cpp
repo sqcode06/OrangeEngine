@@ -1,7 +1,6 @@
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
 namespace OrangeEngine
@@ -43,7 +42,7 @@ namespace OrangeEngine
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::add_buffer(const VertexBuffer& vertex_buffer)
+	void VertexArray::add_vbo(const VertexBuffer& vertex_buffer)
 	{
 		bind();
 		vertex_buffer.bind();
@@ -61,5 +60,12 @@ namespace OrangeEngine
 			);
 			m_items_quantity++;
 		}
+	}
+
+	void VertexArray::set_ibo(const IndexBuffer& index_buffer)
+	{
+		bind();
+		index_buffer.bind();
+		m_indices_quantity = index_buffer.get_quantity();
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 namespace OrangeEngine
 {
@@ -16,12 +17,15 @@ namespace OrangeEngine
 		VertexArray& operator=(VertexArray&& vertex_array) noexcept;
 		VertexArray(VertexArray&& vertex_array) noexcept;
 
-		void add_buffer(const VertexBuffer& vertex_buffer);
+		void add_vbo(const VertexBuffer& vertex_buffer);
+		void set_ibo(const IndexBuffer& index_buffer);
 		void bind() const;
 		static void unbind();
+		size_t get_indices_quantity() const { return m_indices_quantity; }
 
 	private:
 		unsigned int m_id = 0;
 		unsigned int m_items_quantity = 0;
+		size_t m_indices_quantity = 0;
 	};
 }
