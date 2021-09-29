@@ -17,8 +17,8 @@ namespace OrangeEngine
 		return GL_STREAM_DRAW;
 	}
 
-	IndexBuffer::IndexBuffer(const void* data, const size_t quantity, const VertexBuffer::UsageType usage)
-		:m_quantity(std::move(quantity))
+	IndexBuffer::IndexBuffer(const void* data, size_t quantity, const VertexBuffer::UsageType usage)
+		: m_quantity(std::move(quantity))
 	{
 		glGenBuffers(1, &m_id);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
@@ -40,8 +40,8 @@ namespace OrangeEngine
 	}
 
 	IndexBuffer::IndexBuffer(IndexBuffer&& index_buffer) noexcept
-		:m_id(index_buffer.m_id),
-		 m_quantity(std::move(index_buffer.m_quantity))
+		: m_id(index_buffer.m_id)
+		, m_quantity(std::move(index_buffer.m_quantity))
 	{
 		index_buffer.m_id = 0;
 		index_buffer.m_quantity = 0;

@@ -7,7 +7,7 @@ namespace OrangeEngine
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer(const void* data, const size_t quantity, const VertexBuffer::UsageType usage = VertexBuffer::UsageType::Static);
+		IndexBuffer(const void* data, size_t quantity, const VertexBuffer::UsageType usage = VertexBuffer::UsageType::Static);
 		~IndexBuffer();
 
 		IndexBuffer(const IndexBuffer&) = delete;

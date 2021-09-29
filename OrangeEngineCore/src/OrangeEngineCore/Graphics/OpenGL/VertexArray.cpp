@@ -25,8 +25,8 @@ namespace OrangeEngine
 	}
 
 	VertexArray::VertexArray(VertexArray&& vertex_array) noexcept
-		:m_id(vertex_array.m_id),
-		 m_items_quantity(vertex_array.m_items_quantity)
+		: m_id(vertex_array.m_id)
+		, m_items_quantity(vertex_array.m_items_quantity)
 	{
 		vertex_array.m_id = 0;
 		vertex_array.m_items_quantity = 0;

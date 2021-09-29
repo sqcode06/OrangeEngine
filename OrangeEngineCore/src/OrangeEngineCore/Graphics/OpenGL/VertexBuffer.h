@@ -4,7 +4,7 @@
 
 namespace OrangeEngine
 {
-	enum ShaderDataType
+	enum class ShaderDataType
 	{
 		Float,
 		Float2,

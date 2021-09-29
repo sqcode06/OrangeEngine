@@ -17,7 +17,7 @@ namespace OrangeEngine
 		MouseButtonReleased,
 		MouseMoved,
 
-		EventsCount
+		EventsQuantity
 	};
 
 	struct BaseEvent
@@ -49,7 +49,7 @@ namespace OrangeEngine
 		}
 
 	private:
-		std::array<std::function<void(BaseEvent&)>, static_cast<size_t>(EventType::EventsCount)> m_eventCallbacks;
+		std::array<std::function<void(BaseEvent&)>, static_cast<size_t>(EventType::EventsQuantity)> m_eventCallbacks;
 	};
 
 	struct EventMouseMoved : public BaseEvent
@@ -69,7 +69,7 @@ namespace OrangeEngine
 
 	struct EventWindowResize : public BaseEvent
 	{
-		EventWindowResize(const unsigned int new_width, const double new_height) : width(new_width), height(new_height) {}
+		EventWindowResize(const unsigned int new_width, const unsigned int new_height) : width(new_width), height(new_height) {}
 
 		virtual EventType get_type() const override
 		{

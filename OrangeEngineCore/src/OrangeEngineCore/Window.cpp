@@ -163,7 +163,7 @@ namespace OrangeEngine
 
 	void Window::onUpdate()
 	{
-		glClearColor(m_bg_color[0], m_bg_color[1], m_bg_color[2], m_bg_color[3]);
+		glClearColor(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		p_shader->bind();
@@ -172,8 +172,8 @@ namespace OrangeEngine
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize.x = m_data.m_width;
-		io.DisplaySize.y = m_data.m_height;
+		io.DisplaySize.x = static_cast<float>(m_data.m_width);
+		io.DisplaySize.y = static_cast<float>(m_data.m_height);
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -182,7 +182,8 @@ namespace OrangeEngine
 		ImGui::ShowDemoWindow();
 
 		ImGui::Begin("Background Color");
-		ImGui::ColorEdit4("Color Picker", m_bg_color);
+		
+		ImGui::ColorEdit4("Color Picker", imgui_color_array);
 
 		ImGui::End();
 

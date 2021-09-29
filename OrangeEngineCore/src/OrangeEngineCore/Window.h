@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../OrangeEngineCore/includes/OrangeEngineCore/Event.h"
+#include "OrangeEngineCore/Event.h"
 
+#include <memory>
 #include <string>
 #include <functional>
 
@@ -46,6 +47,6 @@ namespace OrangeEngine
 
 		GLFWwindow* m_pWindow = nullptr;
 		WindowData m_data;
-		float m_bg_color[4] = {0.33f, 0.33f, 0.33f, 1.0f};
+		float imgui_color_array[4] = {0.33f, 0.33f, 0.33f, 1.0f};
 	};
 }

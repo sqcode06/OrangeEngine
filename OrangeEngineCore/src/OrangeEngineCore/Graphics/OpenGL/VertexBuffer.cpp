@@ -1,11 +1,11 @@
-#include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
+#include "VertexBuffer.h"
 
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>
 
 namespace OrangeEngine
 {
-	constexpr GLenum convert_shader_data_type_to_components_quantity(const ShaderDataType data_type)
+	constexpr unsigned int convert_shader_data_type_to_components_quantity(const ShaderDataType data_type)
 	{
 		switch (data_type)
 		{
@@ -79,15 +79,15 @@ namespace OrangeEngine
 	}
 
 	BufferItem::BufferItem(const ShaderDataType data_type)
-		:type(data_type),
-		 component_type(convert_shader_data_type_to_component_type(data_type)),
-		 components_quantity(convert_shader_data_type_to_components_quantity(data_type)),
-		 size(get_shader_data_type_size(data_type)),
-		 offset(0)
+		: type(data_type)
+		, component_type(convert_shader_data_type_to_component_type(data_type))
+		, components_quantity(convert_shader_data_type_to_components_quantity(data_type))
+		, size(get_shader_data_type_size(data_type))
+		, offset(0)
 	{}
 
 	VertexBuffer::VertexBuffer(const void* data, const size_t size, BufferLayout buffer_layout, const UsageType usage)
-		:m_buffer_layout(std::move(buffer_layout))
+		: m_buffer_layout(std::move(buffer_layout))
 	{
 		glGenBuffers(1, &m_id);
 		glBindBuffer(GL_ARRAY_BUFFER, m_id);
@@ -107,8 +107,8 @@ namespace OrangeEngine
 	}
 
 	VertexBuffer::VertexBuffer(VertexBuffer&& vertex_buffer) noexcept
-		:m_id(vertex_buffer.m_id),
-		 m_buffer_layout(std::move(vertex_buffer.m_buffer_layout))
+		: m_id(vertex_buffer.m_id)
+		, m_buffer_layout(std::move(vertex_buffer.m_buffer_layout))
 	{
 		m_id = vertex_buffer.m_id;
 		vertex_buffer.m_id = 0;
