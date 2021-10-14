@@ -5,6 +5,9 @@ set(ENGINE_PROJECT_NAME OrangeEngineCore)
 set(ENGINE_PUBLIC_INCLUDES 
 	includes/OrangeEngineCore/Application.h
 	includes/OrangeEngineCore/Event.h
+	includes/OrangeEngineCore/World.h
+	includes/OrangeEngineCore/GameObject.h
+	includes/OrangeEngineCore/Voxel.h
 )
 
 set(ENGINE_PRIVATE_INCLUDES 
@@ -13,6 +16,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.h
+	src/OrangeEngineCore/Physics/PhysicsManager.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
@@ -22,6 +26,10 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.cpp
+	src/OrangeEngineCore/Physics/World.cpp
+	src/OrangeEngineCore/Physics/GameObject.cpp
+	src/OrangeEngineCore/Physics/Voxel.cpp
+	src/OrangeEngineCore/Physics/PhysicsManager.cpp
 )
 
 set(ENGINE_ALL_SOURCES
@@ -50,6 +58,9 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE spdlog)
 
 add_subdirectory(../external/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)
+
+add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
 
 set(IMGUI_INCLUDES
 	../external/imgui/imgui.h
