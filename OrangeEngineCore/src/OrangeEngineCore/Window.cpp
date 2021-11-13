@@ -13,6 +13,8 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_glfw.h>
 
+#include <glm/glm.hpp>
+
 namespace OrangeEngine
 {
 	static bool s_GLFW_initialized = false;
@@ -29,28 +31,37 @@ namespace OrangeEngine
 	};
 
 	const char* vertex_shader =
-		"#version 460\n"
-		"layout(location = 0) in vec3 vertex_position;"
-		"layout(location = 1) in vec3 vertex_color;"
-		"out vec3 color;"
-		"void main() {"
-		"   color = vertex_color;"
-		"   gl_Position = vec4(vertex_position, 1.0);"
-		"}";
+		R"(
+			#version 460
+			layout(location = 0) in vec3 vertex_position;
+			layout(location = 1) in vec3 vertex_color;
+			uniform mat4 model_matrix;
+			out vec3 color;
+			void main() {
+			   color = vertex_color;
+			   gl_Position = model_matrix * vec4(vertex_position, 1.0);
+			}
+		)";
 
 	const char* fragment_shader =
-		"#version 460\n"
-		"in vec3 color;"
-		"out vec4 frag_color;"
-		"void main() {"
-		"   frag_color = vec4(color, 1.0);"
-		"}";
+		R"(
+			#version 460
+			in vec3 color;
+			out vec4 frag_color;
+			void main() {
+				frag_color = vec4(color, 1.0);
+			}
+		)";
 
 	std::unique_ptr<Shader> p_shader;
 
 	std::unique_ptr<VertexBuffer> p_positions_and_colors_vbo;
 	std::unique_ptr<IndexBuffer> p_ibo;
 	std::unique_ptr<VertexArray> p_vao;
+
+	float scale[3] = { 1.f, 1.f, 1.f };
+	float rotate = 0.f;
+	float translate[3] = { 0.f, 0.f, 0.f };
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -167,6 +178,27 @@ namespace OrangeEngine
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		p_shader->bind();
+
+		glm::mat4 scale_matrix(scale[0], 0, 0, 0,
+			0, scale[1], 0, 0,
+			0, 0, scale[2], 0,
+			0, 0, 0, 1);
+
+		float rotate_in_rads = glm::radians(rotate);
+		glm::mat4 rotate_matrix(cos(rotate_in_rads), sin(rotate_in_rads), 0, 0,
+			-sin(rotate_in_rads), cos(rotate_in_rads), 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1);
+
+		glm::mat4 translate_matrix(1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			translate[0], translate[1], translate[2], 1);
+
+		glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
+		//TODO add option to do these calculations on GPU for evvery vertex if it is much more powerful that CPU
+		p_shader->setMatrix4("model_matrix", model_matrix);
+
 		p_vao->bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
@@ -184,6 +216,9 @@ namespace OrangeEngine
 		ImGui::Begin("Background Color");
 		
 		ImGui::ColorEdit4("Color Picker", imgui_color_array);
+		ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
+		ImGui::SliderFloat("Rotation", &rotate, 0.f, 360.f);
+		ImGui::SliderFloat3("Translation", translate, -1.f, 1.f);
 
 		ImGui::End();
 

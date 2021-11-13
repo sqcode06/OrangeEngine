@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace OrangeEngine
 {
 	class Shader
@@ -17,6 +20,7 @@ namespace OrangeEngine
 		void bind() const;
 		static void unbind();
 		bool isCompiled() const { return m_isCompiled; }
+		void setMatrix4(const char* name, glm::mat4& matrix) const;
 
 	private:
 		bool m_isCompiled = false;

@@ -106,4 +106,9 @@ namespace OrangeEngine
 		shader.m_id = 0;
 		shader.m_isCompiled = false;
 	}
+
+	void Shader::setMatrix4(const char* name, glm::mat4& matrix) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 }
