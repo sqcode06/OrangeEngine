@@ -196,7 +196,7 @@ namespace OrangeEngine
 			translate[0], translate[1], translate[2], 1);
 
 		glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
-		//TODO add option to do these calculations on GPU for every vertexW if it is much more powerful that CPU
+		//TODO add option to do these calculations on GPU for every vertex if it is much more powerful that CPU
 		p_shader->setMatrix4("model_matrix", model_matrix);
 
 		p_vao->bind();

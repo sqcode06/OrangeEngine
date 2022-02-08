@@ -5,6 +5,8 @@ set(ENGINE_PROJECT_NAME OrangeEngineCore)
 set(ENGINE_PUBLIC_INCLUDES 
 	includes/OrangeEngineCore/Application.h
 	includes/OrangeEngineCore/Event.h
+	includes/OrangeEngineCore/Rectangle.h
+	includes/OrangeEngineCore/Triangle.h
 )
 
 set(ENGINE_PRIVATE_INCLUDES 
@@ -13,6 +15,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.h
+	src/OrangeEngineCore/GUI/GUI.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
@@ -22,6 +25,9 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.cpp
+	src/OrangeEngineCore/GUI/GUI.cpp
+	src/OrangeEngineCore/GUI/Triangle.cpp
+	src/OrangeEngineCore/GUI/Rectangle.cpp
 )
 
 set(ENGINE_ALL_SOURCES
