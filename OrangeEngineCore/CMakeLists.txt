@@ -5,9 +5,7 @@ set(ENGINE_PROJECT_NAME OrangeEngineCore)
 set(ENGINE_PUBLIC_INCLUDES 
 	includes/OrangeEngineCore/Application.h
 	includes/OrangeEngineCore/Event.h
-	includes/OrangeEngineCore/World.h
-	includes/OrangeEngineCore/GameObject.h
-	includes/OrangeEngineCore/Voxel.h
+	includes/OrangeEngineCore/Camera.h
 )
 
 set(ENGINE_PRIVATE_INCLUDES 
@@ -16,20 +14,16 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.h
-	src/OrangeEngineCore/Physics/PhysicsManager.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
 	src/OrangeEngineCore/Application.cpp
 	src/OrangeEngineCore/Window.cpp
+	src/OrangeEngineCore/Camera.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.cpp
-	src/OrangeEngineCore/Physics/World.cpp
-	src/OrangeEngineCore/Physics/GameObject.cpp
-	src/OrangeEngineCore/Physics/Voxel.cpp
-	src/OrangeEngineCore/Physics/PhysicsManager.cpp
 )
 
 set(ENGINE_ALL_SOURCES

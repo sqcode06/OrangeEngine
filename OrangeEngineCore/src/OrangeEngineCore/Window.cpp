@@ -3,6 +3,7 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Shader.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
+#include "OrangeEngineCore/Camera.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -20,14 +21,29 @@ namespace OrangeEngine
 	static bool s_GLFW_initialized = false;
 
 	GLfloat positions_and_colors[] = {
-		-0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 1.0f,
-		-0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 0.3f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 0.3f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.3f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  1.0f, 0.3f, 0.0f
 	};
 
 	GLuint indices[] = {
-		0, 1, 2, 2, 3, 0
+		0, 1, 2,
+		1, 2, 3,
+		1, 3, 7,
+		1, 5, 7,
+		0, 2, 6,
+		0, 4, 6,
+		3, 2, 6,
+		3, 0, 6,
+		1, 0, 4,
+		1, 5, 4,
+		4, 5, 7,
+		4, 6, 7
 	};
 
 	const char* vertex_shader =
@@ -36,10 +52,11 @@ namespace OrangeEngine
 			layout(location = 0) in vec3 vertex_position;
 			layout(location = 1) in vec3 vertex_color;
 			uniform mat4 model_matrix;
+			uniform mat4 view_projection_matrix;
 			out vec3 color;
 			void main() {
 			   color = vertex_color;
-			   gl_Position = model_matrix * vec4(vertex_position, 1.0);
+			   gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
 			}
 		)";
 
@@ -62,6 +79,11 @@ namespace OrangeEngine
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
+
+	float camera_position[3] = { 0.f, 0.f, 1.f };
+	float camera_rotation[3] = { 0.f, 0.f, 0.f };
+	bool perspective_camera = false;
+	Camera camera;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -199,6 +221,11 @@ namespace OrangeEngine
 		//TODO add option to do these calculations on GPU for evvery vertex if it is much more powerful that CPU
 		p_shader->setMatrix4("model_matrix", model_matrix);
 
+		camera.set_position_rotation(glm::vec3(camera_position[0], camera_position[1], camera_position[2]), glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
+		camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
+		p_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+
+
 		p_vao->bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
@@ -219,6 +246,10 @@ namespace OrangeEngine
 		ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
 		ImGui::SliderFloat("Rotation", &rotate, 0.f, 360.f);
 		ImGui::SliderFloat3("Translation", translate, -1.f, 1.f);
+
+		ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
+		ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
+		ImGui::Checkbox("Perspective camera", &perspective_camera);
 
 		ImGui::End();
 
