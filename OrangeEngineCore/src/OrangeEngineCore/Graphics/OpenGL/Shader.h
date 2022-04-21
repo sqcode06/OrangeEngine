@@ -21,6 +21,7 @@ namespace OrangeEngine
 		static void unbind();
 		bool isCompiled() const { return m_isCompiled; }
 		void setMatrix4(const char* name, glm::mat4& matrix) const;
+		void setVec3(const char* name, glm::vec3& vec) const;
 
 	private:
 		bool m_isCompiled = false;

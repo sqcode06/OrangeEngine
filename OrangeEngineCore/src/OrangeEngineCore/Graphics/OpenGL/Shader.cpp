@@ -111,4 +111,9 @@ namespace OrangeEngine
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
+
+	void Shader::setVec3(const char* name, glm::vec3& vec) const
+	{
+		glUniform3fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vec));
+	}
 }

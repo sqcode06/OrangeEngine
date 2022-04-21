@@ -20,15 +20,15 @@ namespace OrangeEngine
 {
 	static bool s_GLFW_initialized = false;
 
-	GLfloat positions_and_colors[] = {
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 0.3f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 0.3f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  1.0f, 0.3f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.3f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  1.0f, 0.3f, 0.0f
+	GLfloat positions[] = {
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f
 	};
 
 	GLuint indices[] = {
@@ -50,12 +50,10 @@ namespace OrangeEngine
 		R"(
 			#version 460
 			layout(location = 0) in vec3 vertex_position;
-			layout(location = 1) in vec3 vertex_color;
 			uniform mat4 model_matrix;
 			uniform mat4 view_projection_matrix;
 			out vec3 color;
 			void main() {
-			   color = vertex_color;
 			   gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
 			}
 		)";
@@ -63,27 +61,53 @@ namespace OrangeEngine
 	const char* fragment_shader =
 		R"(
 			#version 460
-			in vec3 color;
+			uniform vec3 object_color;
+			uniform vec3 light_color;
 			out vec4 frag_color;
 			void main() {
-				frag_color = vec4(color, 1.0);
+				frag_color = vec4(light_color * object_color, 1.0);
 			}
 		)";
 
-	std::unique_ptr<Shader> p_shader;
+	const char* light_vertex_shader =
+		R"(
+			#version 460
+			layout(location = 0) in vec3 vertex_position;
+			uniform mat4 model_matrix;
+			uniform mat4 view_projection_matrix;
+			void main() {
+			   gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
+			}
+		)";
 
-	std::unique_ptr<VertexBuffer> p_positions_and_colors_vbo;
+	const char* light_fragment_shader =
+		R"(
+			#version 460
+			out vec4 frag_color;
+			void main() {
+				frag_color = vec4(1.0);
+			}
+		)";
+
+	std::unique_ptr<Shader> p_object_shader;
+	std::unique_ptr<Shader> p_light_shader;
+
+	std::unique_ptr<VertexBuffer> p_positions_vbo;
 	std::unique_ptr<IndexBuffer> p_ibo;
-	std::unique_ptr<VertexArray> p_vao;
+	std::unique_ptr<VertexArray> p_object_vao;
+	std::unique_ptr<VertexArray> p_light_vao;
 
-	float scale[3] = { 1.f, 1.f, 1.f };
-	float rotate = 0.f;
-	float translate[3] = { 0.f, 0.f, 0.f };
+	float object_scale[3] = { 1.f, 1.f, 1.f };
+	float object_rotation = 0.f;
+	float object_position[3] = { 0.f, 0.f, 0.f };
 
 	float camera_position[3] = { 0.f, 0.f, 1.f };
 	float camera_rotation[3] = { 0.f, 0.f, 0.f };
 	bool perspective_camera = false;
 	Camera camera;
+
+	float light_position[3] = { 0.0f, 1.0f, 3.0f };
+	float light_rotation = 0.f;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -165,24 +189,34 @@ namespace OrangeEngine
 			}
 		);
 
-		p_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
-		if (!p_shader->isCompiled())
+		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
+		if (!p_object_shader->isCompiled())
 		{
 			return false;
 		}
 
-		BufferLayout buffer_layout_2vec3
+		p_light_shader = std::make_unique<Shader>(light_vertex_shader, light_fragment_shader);
+
+		if (!p_light_shader->isCompiled())
 		{
-			ShaderDataType::Float3,
+			return false;
+		}
+
+		BufferLayout buffer_layout_vec3
+		{
 			ShaderDataType::Float3
 		};
 
-		p_vao = std::make_unique<VertexArray>();
-		p_positions_and_colors_vbo = std::make_unique<VertexBuffer>(positions_and_colors, sizeof(positions_and_colors), buffer_layout_2vec3);
+		p_object_vao = std::make_unique<VertexArray>();
+		p_light_vao = std::make_unique<VertexArray>();
+		p_positions_vbo = std::make_unique<VertexBuffer>(positions, sizeof(positions), buffer_layout_vec3);
 		p_ibo = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
-		p_vao->add_vbo(*p_positions_and_colors_vbo);
-		p_vao->set_ibo(*p_ibo);
+		p_object_vao->add_vbo(*p_positions_vbo);
+		p_object_vao->set_ibo(*p_ibo);
+
+		p_light_vao->add_vbo(*p_positions_vbo);
+		p_light_vao->set_ibo(*p_ibo);
 
 		return 0;
 	}
@@ -199,36 +233,35 @@ namespace OrangeEngine
 		glClearColor(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		p_shader->bind();
-
-		glm::mat4 scale_matrix(scale[0], 0, 0, 0,
-			0, scale[1], 0, 0,
-			0, 0, scale[2], 0,
-			0, 0, 0, 1);
-
-		float rotate_in_rads = glm::radians(rotate);
-		glm::mat4 rotate_matrix(cos(rotate_in_rads), sin(rotate_in_rads), 0, 0,
-			-sin(rotate_in_rads), cos(rotate_in_rads), 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1);
-
-		glm::mat4 translate_matrix(1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			translate[0], translate[1], translate[2], 1);
-
-		glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
-		//TODO add option to do these calculations on GPU for evvery vertex if it is much more powerful that CPU
-		p_shader->setMatrix4("model_matrix", model_matrix);
-
+		glm::mat4 model_matrix = glm::mat4(1.0f);
+		model_matrix = glm::scale(model_matrix, glm::vec3(object_scale[0], object_scale[1], object_scale[2]));
+		model_matrix = glm::rotate(model_matrix, glm::radians(object_rotation), glm::vec3(0, 0, 1));
+		model_matrix = glm::translate(model_matrix, glm::vec3(object_position[0], object_position[1], object_position[2]));
+		
+		glm::mat4 light_model_matrix = glm::mat4(1.0f);
+		light_model_matrix = glm::rotate(light_model_matrix, glm::radians(light_rotation), glm::vec3(1, 0, 0));
+		light_model_matrix = glm::translate(light_model_matrix, glm::vec3(light_position[0], light_position[1], light_position[2]));
+		
 		camera.set_position_rotation(glm::vec3(camera_position[0], camera_position[1], camera_position[2]), glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
 		camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
-		p_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+		
+		p_object_shader->bind();
+		p_object_shader->setVec3("object_color", glm::vec3(1.0f, 0.3f, 0.0f));
+		p_object_shader->setVec3("light_color", glm::vec3(1.0f, 1.0f, 1.0f));
+		p_object_shader->setMatrix4("model_matrix", model_matrix);
+		p_object_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 
+		p_object_vao->bind();
+		glDrawArrays(GL_TRIANGLES, 0, 8);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_object_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
 
-		p_vao->bind();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
+		p_light_shader->bind();
+		p_light_shader->setMatrix4("model_matrix", light_model_matrix);
+		p_light_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+
+		p_light_vao->bind();
+		glDrawArrays(GL_TRIANGLES, 0, 8);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_light_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize.x = static_cast<float>(m_data.m_width);
@@ -240,16 +273,19 @@ namespace OrangeEngine
 
 		ImGui::ShowDemoWindow();
 
-		ImGui::Begin("Background Color");
-		
-		ImGui::ColorEdit4("Color Picker", imgui_color_array);
-		ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
-		ImGui::SliderFloat("Rotation", &rotate, 0.f, 360.f);
-		ImGui::SliderFloat3("Translation", translate, -1.f, 1.f);
+		ImGui::Begin("Options");
+
+		ImGui::ColorEdit4("Background color picker", imgui_color_array);
+		ImGui::SliderFloat3("Object scale", object_scale, 0.f, 2.f);
+		ImGui::SliderFloat("Object rotation", &object_rotation, 0.f, 360.f);
+		ImGui::SliderFloat3("Object position", object_position, -1.f, 1.f);
 
 		ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
 		ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
 		ImGui::Checkbox("Perspective camera", &perspective_camera);
+
+		ImGui::SliderFloat3("Light position", light_position, -1.f, 1.f);
+		ImGui::SliderFloat("Light rotation", &light_rotation, 0.f, 360.f);
 
 		ImGui::End();
 
