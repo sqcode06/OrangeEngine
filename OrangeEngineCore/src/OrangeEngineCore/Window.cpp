@@ -3,6 +3,7 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Shader.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
+#include "OrangeEngineCore/Graphics/OpenGL/Light.h"
 #include "OrangeEngineCore/Camera.h"
 
 #include <glad/glad.h>
@@ -20,41 +21,84 @@ namespace OrangeEngine
 {
 	static bool s_GLFW_initialized = false;
 
-	GLfloat positions[] = {
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f
-	};
+	GLfloat positions_and_normals[] = {
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
 
-	GLuint indices[] = {
-		0, 1, 2,
-		1, 2, 3,
-		1, 3, 7,
-		1, 5, 7,
-		0, 2, 6,
-		0, 4, 6,
-		3, 2, 6,
-		3, 0, 6,
-		1, 0, 4,
-		1, 5, 4,
-		4, 5, 7,
-		4, 6, 7
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f
 	};
 
 	const char* vertex_shader =
 		R"(
 			#version 460
 			layout(location = 0) in vec3 vertex_position;
+			layout(location = 1) in vec3 normal_vector;
 			uniform mat4 model_matrix;
 			uniform mat4 view_projection_matrix;
-			out vec3 color;
+			uniform mat3 normal_matrix;
+			out vec3 fragment_pos;
+			out vec3 normal;
 			void main() {
-			   gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
+				normal = mat3(transpose(inverse(model_matrix))) * normal_vector;
+				fragment_pos = vec3(model_matrix * vec4(vertex_position, 1.0));
+				gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
+			}
+		)";
+
+	const char* geometry_shader =
+		R"(
+			#version 460
+			layout(triangles) in;
+			layout(triangle_strip, max_vertices = 3) out;
+			out vec3 normal;
+			void main() {
+				vec3 a = (gl_in[1].gl_Position - gl_in[0].gl_Position).xyz;
+				vec3 b = (gl_in[2].gl_Position - gl_in[0].gl_Position).xyz;
+				vec3 N = normalize(cross(b, a));
+				for(int i = 0; i < gl_in.length(); i++)
+				{
+					gl_Position = gl_in[i].gl_Position;
+					normal = N;
+					EmitVertex();
+				}
+				EndPrimitive();
 			}
 		)";
 
@@ -63,39 +107,31 @@ namespace OrangeEngine
 			#version 460
 			uniform vec3 object_color;
 			uniform vec3 light_color;
+			uniform vec3 light_pos;
+			uniform vec3 view_pos;
+			in vec3 normal;
+			in vec3 fragment_pos;
 			out vec4 frag_color;
 			void main() {
-				frag_color = vec4(light_color * object_color, 1.0);
-			}
-		)";
+				vec3 light_direction = normalize(light_pos - fragment_pos);  
+				float diff = max(dot(normal, light_direction), 0.0);
+				vec3 diffuse = diff * light_color;
 
-	const char* light_vertex_shader =
-		R"(
-			#version 460
-			layout(location = 0) in vec3 vertex_position;
-			uniform mat4 model_matrix;
-			uniform mat4 view_projection_matrix;
-			void main() {
-			   gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
-			}
-		)";
+				float specular_strength = 0.5;
+				vec3 view_direction = normalize(view_pos - fragment_pos);
+				vec3 reflect_direction = reflect(-light_direction, normal); 
+				float spec = pow(max(dot(view_direction, reflect_direction), 0.0), 32);
+				vec3 specular = specular_strength * spec * light_color;	
 
-	const char* light_fragment_shader =
-		R"(
-			#version 460
-			out vec4 frag_color;
-			void main() {
-				frag_color = vec4(1.0);
+				float ambient_strength = 0.1;
+				vec3 ambient = ambient_strength * light_color;
+				frag_color = vec4((ambient + diffuse + specular) * object_color, 1.0);
 			}
 		)";
 
 	std::unique_ptr<Shader> p_object_shader;
-	std::unique_ptr<Shader> p_light_shader;
-
-	std::unique_ptr<VertexBuffer> p_positions_vbo;
-	std::unique_ptr<IndexBuffer> p_ibo;
+	std::unique_ptr<VertexBuffer> p_positions_and_normals_vbo;
 	std::unique_ptr<VertexArray> p_object_vao;
-	std::unique_ptr<VertexArray> p_light_vao;
 
 	float object_scale[3] = { 1.f, 1.f, 1.f };
 	float object_rotation = 0.f;
@@ -106,8 +142,7 @@ namespace OrangeEngine
 	bool perspective_camera = false;
 	Camera camera;
 
-	float light_position[3] = { 0.0f, 1.0f, 3.0f };
-	float light_rotation = 0.f;
+	std::unique_ptr<Light> p_light;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -189,34 +224,33 @@ namespace OrangeEngine
 			}
 		);
 
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
 		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
 		if (!p_object_shader->isCompiled())
 		{
 			return false;
 		}
 
-		p_light_shader = std::make_unique<Shader>(light_vertex_shader, light_fragment_shader);
-
-		if (!p_light_shader->isCompiled())
+		BufferLayout buffer_layout_2vec3
 		{
-			return false;
-		}
-
-		BufferLayout buffer_layout_vec3
-		{
+			ShaderDataType::Float3,
 			ShaderDataType::Float3
 		};
 
 		p_object_vao = std::make_unique<VertexArray>();
-		p_light_vao = std::make_unique<VertexArray>();
-		p_positions_vbo = std::make_unique<VertexBuffer>(positions, sizeof(positions), buffer_layout_vec3);
-		p_ibo = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
+		p_positions_and_normals_vbo = std::make_unique<VertexBuffer>(positions_and_normals, sizeof(positions_and_normals), buffer_layout_2vec3);
 
-		p_object_vao->add_vbo(*p_positions_vbo);
-		p_object_vao->set_ibo(*p_ibo);
+		p_object_vao->add_vbo(*p_positions_and_normals_vbo);
+		//p_object_vao->set_ibo(*p_ibo);
 
-		p_light_vao->add_vbo(*p_positions_vbo);
-		p_light_vao->set_ibo(*p_ibo);
+		p_light = std::make_unique<Light>(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), true, true);
+
+		if (!p_light->init_visualize())
+		{
+			return false;
+		}
 
 		return 0;
 	}
@@ -231,37 +265,29 @@ namespace OrangeEngine
 	void Window::onUpdate()
 	{
 		glClearColor(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 model_matrix = glm::mat4(1.0f);
 		model_matrix = glm::scale(model_matrix, glm::vec3(object_scale[0], object_scale[1], object_scale[2]));
 		model_matrix = glm::rotate(model_matrix, glm::radians(object_rotation), glm::vec3(0, 0, 1));
 		model_matrix = glm::translate(model_matrix, glm::vec3(object_position[0], object_position[1], object_position[2]));
 		
-		glm::mat4 light_model_matrix = glm::mat4(1.0f);
-		light_model_matrix = glm::rotate(light_model_matrix, glm::radians(light_rotation), glm::vec3(1, 0, 0));
-		light_model_matrix = glm::translate(light_model_matrix, glm::vec3(light_position[0], light_position[1], light_position[2]));
-		
 		camera.set_position_rotation(glm::vec3(camera_position[0], camera_position[1], camera_position[2]), glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
 		camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 		
 		p_object_shader->bind();
 		p_object_shader->setVec3("object_color", glm::vec3(1.0f, 0.3f, 0.0f));
-		p_object_shader->setVec3("light_color", glm::vec3(1.0f, 1.0f, 1.0f));
+		p_object_shader->setVec3("light_color", p_light->get_color());
+		p_object_shader->setVec3("light_pos", p_light->get_position());
+		p_object_shader->setVec3("view_pos", glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
 		p_object_shader->setMatrix4("model_matrix", model_matrix);
 		p_object_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 
 		p_object_vao->bind();
-		glDrawArrays(GL_TRIANGLES, 0, 8);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_object_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_object_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
 
-		p_light_shader->bind();
-		p_light_shader->setMatrix4("model_matrix", light_model_matrix);
-		p_light_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
-
-		p_light_vao->bind();
-		glDrawArrays(GL_TRIANGLES, 0, 8);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_light_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
+		p_light->visualize(camera.get_projection_matrix() * camera.get_view_matrix());
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize.x = static_cast<float>(m_data.m_width);
@@ -278,14 +304,13 @@ namespace OrangeEngine
 		ImGui::ColorEdit4("Background color picker", imgui_color_array);
 		ImGui::SliderFloat3("Object scale", object_scale, 0.f, 2.f);
 		ImGui::SliderFloat("Object rotation", &object_rotation, 0.f, 360.f);
-		ImGui::SliderFloat3("Object position", object_position, -1.f, 1.f);
+		ImGui::SliderFloat3("Object position", object_position, -10.f, 10.f);
 
 		ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
 		ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
 		ImGui::Checkbox("Perspective camera", &perspective_camera);
 
-		ImGui::SliderFloat3("Light position", light_position, -1.f, 1.f);
-		ImGui::SliderFloat("Light rotation", &light_rotation, 0.f, 360.f);
+		p_light->imgui_impl();
 
 		ImGui::End();
 

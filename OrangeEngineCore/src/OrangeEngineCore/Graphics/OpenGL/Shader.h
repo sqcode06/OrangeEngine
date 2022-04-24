@@ -9,6 +9,7 @@ namespace OrangeEngine
 	{
 	public:
 		Shader(const char* vertex_shader_src, const char* fragment_shader_src);
+		Shader(const char* vertex_shader_src, const char* geometry_shader_src, const char* fragment_shader_src);
 		Shader(Shader&&) noexcept;
 		Shader& operator=(Shader&&) noexcept;
 		~Shader();
@@ -20,8 +21,10 @@ namespace OrangeEngine
 		void bind() const;
 		static void unbind();
 		bool isCompiled() const { return m_isCompiled; }
-		void setMatrix4(const char* name, glm::mat4& matrix) const;
+
 		void setVec3(const char* name, glm::vec3& vec) const;
+		void setMatrix3(const char* name, glm::mat3& matrix) const;
+		void setMatrix4(const char* name, glm::mat4& matrix) const;
 
 	private:
 		bool m_isCompiled = false;
