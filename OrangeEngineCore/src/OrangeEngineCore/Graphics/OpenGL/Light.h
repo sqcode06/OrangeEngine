@@ -10,10 +10,17 @@
 
 namespace OrangeEngine
 {
+	struct LightMaterial
+	{
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+	};
+
 	class Light
 	{
 	public:
-		Light(glm::vec3 position, glm::vec3 color, bool visualize, bool imgui_impl);
+		Light(glm::vec3 position, LightMaterial light_material, bool visualize, bool imgui_impl);
 
 		bool init_visualize();
 		void visualize(glm::mat4 view_projection_matrix);
@@ -21,12 +28,14 @@ namespace OrangeEngine
 
 		void set_position(glm::vec3 position) { m_position = position; }
 		glm::vec3 get_position() const { return m_position; }
-		void set_color(glm::vec3 color) { m_color = color; }
-		glm::vec3 get_color() const { return m_color; }
+		void set_light_material(LightMaterial light_material) { m_light_material = light_material; }
+		LightMaterial get_light_material() const { return m_light_material; }
+		
+		void send_to_shader(std::unique_ptr<Shader>& shader, const char* material_name, short name_length);
 
 	private:
 		glm::vec3 m_position;
-		glm::vec3 m_color;
+		LightMaterial m_light_material;
 
 		std::unique_ptr<Shader> m_p_shader;
 		std::unique_ptr<VertexArray> m_p_vao;

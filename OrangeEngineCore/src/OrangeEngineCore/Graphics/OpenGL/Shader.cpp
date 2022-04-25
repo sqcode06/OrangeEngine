@@ -183,4 +183,9 @@ namespace OrangeEngine
 	{
 		glUniform3fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vec));
 	}
+
+	void Shader::setFloat(const char* name, const GLfloat* var) const
+	{
+		glUniform1fv(glGetUniformLocation(m_id, name), 1, var);
+	}
 }

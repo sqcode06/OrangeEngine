@@ -4,6 +4,7 @@
 #include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Light.h"
+#include "OrangeEngineCore/Graphics/OpenGL/Material.h"
 #include "OrangeEngineCore/Camera.h"
 
 #include <glad/glad.h>
@@ -105,27 +106,40 @@ namespace OrangeEngine
 	const char* fragment_shader =
 		R"(
 			#version 460
-			uniform vec3 object_color;
-			uniform vec3 light_color;
 			uniform vec3 light_pos;
 			uniform vec3 view_pos;
 			in vec3 normal;
 			in vec3 fragment_pos;
 			out vec4 frag_color;
+
+			struct Material {
+				vec3 ambient;
+				vec3 diffuse;
+				vec3 specular;
+				float shininess;
+			};
+
+			struct LightMaterial {
+				vec3 ambient;
+				vec3 diffuse;
+				vec3 specular;
+			};
+
+			uniform Material material;
+			uniform LightMaterial light_material;
+
 			void main() {
 				vec3 light_direction = normalize(light_pos - fragment_pos);  
 				float diff = max(dot(normal, light_direction), 0.0);
-				vec3 diffuse = diff * light_color;
+				vec3 diffuse = (diff * material.diffuse) * light_material.diffuse;
 
-				float specular_strength = 0.5;
 				vec3 view_direction = normalize(view_pos - fragment_pos);
 				vec3 reflect_direction = reflect(-light_direction, normal); 
-				float spec = pow(max(dot(view_direction, reflect_direction), 0.0), 32);
-				vec3 specular = specular_strength * spec * light_color;	
+				float spec = pow(max(dot(view_direction, reflect_direction), 0.0), material.shininess);
+				vec3 specular = (spec * material.specular) * light_material.specular;	
 
-				float ambient_strength = 0.1;
-				vec3 ambient = ambient_strength * light_color;
-				frag_color = vec4((ambient + diffuse + specular) * object_color, 1.0);
+				vec3 ambient = material.ambient * light_material.ambient;
+				frag_color = vec4(ambient + diffuse + specular, 1.0);
 			}
 		)";
 
@@ -143,6 +157,8 @@ namespace OrangeEngine
 	Camera camera;
 
 	std::unique_ptr<Light> p_light;
+
+	Material material(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(0.5f, 0.5f, 0.5f), 32.0f);
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
 		:m_data({ std::move(title), width, height })
@@ -245,13 +261,17 @@ namespace OrangeEngine
 		p_object_vao->add_vbo(*p_positions_and_normals_vbo);
 		//p_object_vao->set_ibo(*p_ibo);
 
-		p_light = std::make_unique<Light>(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), true, true);
+		LightMaterial light_material;
+		light_material.ambient = glm::vec3(0.2f);
+		light_material.diffuse = glm::vec3(0.5f);
+		light_material.specular = glm::vec3(1.0f);
+		p_light = std::make_unique<Light>(glm::vec3(0.0f, 1.0f, 3.0f), light_material, true, true);
 
 		if (!p_light->init_visualize())
 		{
 			return false;
 		}
-
+		
 		return 0;
 	}
 
@@ -276,12 +296,13 @@ namespace OrangeEngine
 		camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 		
 		p_object_shader->bind();
-		p_object_shader->setVec3("object_color", glm::vec3(1.0f, 0.3f, 0.0f));
-		p_object_shader->setVec3("light_color", p_light->get_color());
 		p_object_shader->setVec3("light_pos", p_light->get_position());
 		p_object_shader->setVec3("view_pos", glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
 		p_object_shader->setMatrix4("model_matrix", model_matrix);
 		p_object_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+		
+		material.send_to_shader(p_object_shader, "material", 8);
+		p_light->send_to_shader(p_object_shader, "light_material", 14);
 
 		p_object_vao->bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);

@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glad/glad.h>
+
 namespace OrangeEngine
 {
 	class Shader
@@ -22,6 +24,7 @@ namespace OrangeEngine
 		static void unbind();
 		bool isCompiled() const { return m_isCompiled; }
 
+		void setFloat(const char* name, const GLfloat* var) const;
 		void setVec3(const char* name, glm::vec3& vec) const;
 		void setMatrix3(const char* name, glm::mat3& matrix) const;
 		void setMatrix4(const char* name, glm::mat4& matrix) const;

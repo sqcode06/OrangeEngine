@@ -1,12 +1,13 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Light.h"
 
 #include <imgui/imgui.h>
+#include <spdlog/spdlog.h>
 
 namespace OrangeEngine
 {
-	Light::Light(glm::vec3 position, glm::vec3 color, bool visualize, bool imgui_impl)
+	Light::Light(glm::vec3 position, LightMaterial light_material, bool visualize, bool imgui_impl)
 		:m_position(position),
-		 m_color(color)
+		 m_light_material(light_material)
 	{
 		if (!visualize)
 		{
@@ -97,9 +98,9 @@ namespace OrangeEngine
 	{
 		glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), m_position);
 		m_p_shader->bind();
+		m_p_shader->setVec3("light_color", m_light_material.specular);
 		m_p_shader->setMatrix4("model_matrix", model_matrix);
 		m_p_shader->setMatrix4("view_projection_matrix", view_projection_matrix);
-		m_p_shader->setVec3("light_color", m_color);
 
 		m_p_vao->bind();
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_p_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
@@ -109,5 +110,24 @@ namespace OrangeEngine
 	{
 		ImGui::SliderFloat3("Light position", m_imgui_positions, -10.f, 10.f);
 		m_position = glm::vec3(m_imgui_positions[0], m_imgui_positions[1], m_imgui_positions[2]);
+	}
+
+	void Light::send_to_shader(std::unique_ptr<Shader>& shader, const char* material_name, short name_length)
+	{
+		if (name_length > 32)
+		{
+			spdlog::error("Name of the light material is too long, it must be no larger than 32 symbols.");
+			return;
+		}
+		char buf[42];
+		strcpy(buf, material_name);
+		strcat(buf, ".ambient");
+		shader->setVec3(buf, m_light_material.ambient);
+		strcpy(buf, material_name);
+		strcat(buf, ".diffuse");
+		shader->setVec3(buf, m_light_material.diffuse);
+		strcpy(buf, material_name);
+		strcat(buf, ".specular");
+		shader->setVec3(buf, m_light_material.specular);
 	}
 }
