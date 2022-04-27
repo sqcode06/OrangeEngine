@@ -10,7 +10,10 @@ set(ENGINE_PUBLIC_INCLUDES
 
 set(ENGINE_PRIVATE_INCLUDES 
 	src/OrangeEngineCore/Window.h
-	src/OrangeEngineCore/Graphics/OpenGL/Light.h
+	src/OrangeEngineCore/Graphics/OpenGL/Light/LightMaterial.h
+	src/OrangeEngineCore/Graphics/OpenGL/Light/DirectionalLight.h
+	src/OrangeEngineCore/Graphics/OpenGL/Light/PointLight.h
+	src/OrangeEngineCore/Graphics/OpenGL/Light/SpotLight.h
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.h
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
@@ -22,7 +25,9 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Application.cpp
 	src/OrangeEngineCore/Window.cpp
 	src/OrangeEngineCore/Camera.cpp
-	src/OrangeEngineCore/Graphics/OpenGL/Light.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/Light/DirectionalLight.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/Light/PointLight.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/Light/SpotLight.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Shader.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexBuffer.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp

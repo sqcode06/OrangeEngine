@@ -14,7 +14,7 @@ class Game : public OrangeEngine::Application
 int main(int argc, char** argv)
 {
 	auto game = std::make_unique<Game>();
-	int returnCode = game->start(1024, 768, "The coolest game ever!", argv);
+	int returnCode = game->start(1024, 1024, "The coolest game ever!", argv);
 	std::cin.get();
 	return returnCode;
 }
