@@ -9,7 +9,8 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Material.h"
 #include "OrangeEngineCore/Camera.h"
 
-#include <glad/glad.h>
+#include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
+
 #include <GLFW/glfw3.h>
 
 #include <spdlog/spdlog.h>
@@ -22,8 +23,6 @@
 
 namespace OrangeEngine
 {
-	static bool s_GLFW_initialized = false;
-
 	GLfloat positions_and_normals[] = {
 		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
 		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
@@ -225,29 +224,30 @@ namespace OrangeEngine
 	int Window::init()
 	{
 		spdlog::info("Window \"{0}\" created.", m_data.m_title);
-		if (!s_GLFW_initialized)
-		{
-			if (!glfwInit())
+
+		glfwSetErrorCallback([](int error_code, const char* description)
 			{
-				spdlog::critical("Failed to initialize GLFW.");
-				return -1;
-			}
-			s_GLFW_initialized = true;
+				spdlog::critical("GLFW error: {0}", description);
+			});
+
+		if (!glfwInit())
+		{
+			spdlog::critical("Failed to initialize GLFW.");
+			return -1;
 		}
 		m_pWindow = glfwCreateWindow(m_data.m_width, m_data.m_height, m_data.m_title.c_str(), nullptr, nullptr);
 		if (!m_pWindow)
 		{
 			spdlog::critical("Failed to create GLFW window \"{0}\"", m_data.m_title);
-			glfwTerminate();
 			return -2;
 		}
-		glfwMakeContextCurrent(m_pWindow);
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		
+		if (!Renderer_OpenGL::init(m_pWindow))
 		{
-			spdlog::critical("Failed to initialize GLAD");
+			spdlog::critical("Failed to initialize OpenGL renderer");
 			return -3;
 		}
-		spdlog::info("Renderer: {0}, OpenGL version: {1}", glGetString(GL_RENDERER), glGetString(GL_VERSION));
+
 		glfwSetWindowUserPointer(m_pWindow, &m_data);
 		glfwSetWindowSizeCallback(m_pWindow, 
 			[](GLFWwindow* pWindow, int width, int height)
@@ -255,7 +255,6 @@ namespace OrangeEngine
 				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
 				data.m_width = width;
 				data.m_height = height;
-
 				EventWindowResize event(width, height);
 				data.eventCallbackFn(event);
 			}
@@ -264,7 +263,6 @@ namespace OrangeEngine
 			[](GLFWwindow* pWindow, double x, double y)
 			{
 				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
 				EventMouseMoved event(x, y);
 				data.eventCallbackFn(event);
 			}
@@ -273,7 +271,6 @@ namespace OrangeEngine
 			[](GLFWwindow* pWindow)
 			{
 				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
 				EventWindowClose event;
 				data.eventCallbackFn(event);
 			}
@@ -281,12 +278,11 @@ namespace OrangeEngine
 		glfwSetFramebufferSizeCallback(m_pWindow,
 			[](GLFWwindow* pWindow, int width, int height)
 			{
-				glViewport(0, 0, width, height);
+				Renderer_OpenGL::set_viewport(width, height);
 			}
 		);
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+		Renderer_OpenGL::enable_depth_test(GL_LESS);
 
 		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
 		if (!p_object_shader->isCompiled())
@@ -319,6 +315,11 @@ namespace OrangeEngine
 
 	int Window::shutdown()
 	{
+		if (ImGui::GetCurrentContext())
+		{
+			ImGui::DestroyContext();
+		}
+
 		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 		return 0;
@@ -326,8 +327,8 @@ namespace OrangeEngine
 
 	void Window::onUpdate()
 	{
-		glClearColor(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Renderer_OpenGL::set_clear_color(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
+		Renderer_OpenGL::clear();
 
 		glm::mat4 model_matrix = glm::mat4(1.0f);
 		model_matrix = glm::scale(model_matrix, glm::vec3(object_scale[0], object_scale[1], object_scale[2]));
@@ -348,8 +349,8 @@ namespace OrangeEngine
 		p_spot_light->send_to_shader(p_object_shader, "spot_light", 10);
 
 		p_object_vao->bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_object_vao->get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
+		Renderer_OpenGL::draw(*p_object_vao, 36);
+		//Renderer_OpenGL::draw_elements(*p_object_vao);
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize.x = static_cast<float>(m_data.m_width);

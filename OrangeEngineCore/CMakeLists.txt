@@ -19,6 +19,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.h
 	src/OrangeEngineCore/Graphics/OpenGL/Material.h
+	src/OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
@@ -33,6 +34,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Material.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.cpp
 )
 
 set(ENGINE_ALL_SOURCES
