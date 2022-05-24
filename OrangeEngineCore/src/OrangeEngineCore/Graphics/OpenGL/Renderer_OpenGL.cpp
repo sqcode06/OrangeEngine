@@ -1,7 +1,7 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
 
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
 

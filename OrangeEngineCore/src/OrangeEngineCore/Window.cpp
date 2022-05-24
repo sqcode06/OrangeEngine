@@ -11,13 +11,12 @@
 
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
 
+#include "OrangeEngineCore/Modules/UIModule.h"
+
 #include <GLFW/glfw3.h>
 
 #include <spdlog/spdlog.h>
-
 #include <imgui/imgui.h>
-#include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_glfw.h>
 
 #include <glm/glm.hpp>
 
@@ -208,11 +207,6 @@ namespace OrangeEngine
 		:m_data({ std::move(title), width, height })
 	{
 		int resultCode = init();
-
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGui_ImplOpenGL3_Init();
-		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 	}
 
 	Window::~Window()
@@ -282,6 +276,8 @@ namespace OrangeEngine
 			}
 		);
 
+		UIModule::on_window_built(m_pWindow);
+
 		Renderer_OpenGL::enable_depth_test(GL_LESS);
 
 		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
@@ -315,11 +311,7 @@ namespace OrangeEngine
 
 	int Window::shutdown()
 	{
-		if (ImGui::GetCurrentContext())
-		{
-			ImGui::DestroyContext();
-		}
-
+		UIModule::on_window_destroy();
 		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 		return 0;
@@ -352,15 +344,8 @@ namespace OrangeEngine
 		Renderer_OpenGL::draw(*p_object_vao, 36);
 		//Renderer_OpenGL::draw_elements(*p_object_vao);
 
-		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize.x = static_cast<float>(m_data.m_width);
-		io.DisplaySize.y = static_cast<float>(m_data.m_height);
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		ImGui::ShowDemoWindow();
+		UIModule::on_ui_draw_begin();
 
 		ImGui::Begin("Options");
 
@@ -374,9 +359,7 @@ namespace OrangeEngine
 		ImGui::Checkbox("Perspective camera", &perspective_camera);
 
 		ImGui::End();
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		UIModule::on_ui_draw_end();
 
 		glfwSwapBuffers(m_pWindow);
 		glfwPollEvents();
