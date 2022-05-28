@@ -47,6 +47,5 @@ namespace OrangeEngine
 
 		GLFWwindow* m_pWindow = nullptr;
 		WindowData m_data;
-		float imgui_color_array[4] = {0.33f, 0.33f, 0.33f, 1.0f};
 	};
 }
