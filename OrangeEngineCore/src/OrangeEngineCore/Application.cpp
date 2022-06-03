@@ -8,9 +8,12 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Light/PointLight.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Light/SpotLight.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Material.h"
+#include "OrangeEngineCore/Graphics/OpenGL/Texture.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
 
 #include "OrangeEngineCore/Modules/UIModule.h"
+
+#include "OrangeEngineCore/ResourceLoader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -20,47 +23,47 @@
 namespace OrangeEngine
 {
 	GLfloat positions_and_normals[] = {
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f,
 
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f
 	};
 
 	const char* vertex_shader =
@@ -68,15 +71,18 @@ namespace OrangeEngine
 			#version 460
 			layout(location = 0) in vec3 vertex_position;
 			layout(location = 1) in vec3 normal_vector;
+			layout(location = 2) in vec2 texture_position;
 			uniform mat4 model_matrix;
 			uniform mat4 view_projection_matrix;
 			uniform mat3 normal_matrix;
 			out vec3 fragment_pos;
 			out vec3 normal;
+			out vec2 texture_coord;
 			void main() {
 				normal = mat3(transpose(inverse(model_matrix))) * normal_vector;
 				fragment_pos = vec3(model_matrix * vec4(vertex_position, 1.0));
 				gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
+				texture_coord = texture_position;
 			}
 		)";
 
@@ -106,6 +112,7 @@ namespace OrangeEngine
 			uniform vec3 view_pos;
 			in vec3 normal;
 			in vec3 fragment_pos;
+			in vec2 texture_coord;
 			out vec4 frag_color;
 
 			struct Material {
@@ -148,6 +155,8 @@ namespace OrangeEngine
 			//uniform PointLight point_light;
 			uniform SpotLight spot_light;
 
+			uniform sampler2D texture_data;
+
 			void main() {
 				vec3 light_direction = normalize(spot_light.position - fragment_pos);
 				float theta = dot(light_direction, normalize(-spot_light.direction));
@@ -172,11 +181,11 @@ namespace OrangeEngine
 					diffuse *= intensity;
 					specular *= intensity;
 
-					frag_color = vec4(ambient + diffuse + specular, 1.0);
+					frag_color = vec4(ambient + diffuse + specular, 1.0) * texture(texture_data, texture_coord);
 				}
 				else
 				{
-					frag_color = vec4(ambient, 1.0);
+					frag_color = vec4(ambient, 1.0) * texture(texture_data, texture_coord);
 				}
 			}
 		)";
@@ -184,6 +193,8 @@ namespace OrangeEngine
 	std::unique_ptr<Shader> p_object_shader;
 	std::unique_ptr<VertexBuffer> p_positions_and_normals_vbo;
 	std::unique_ptr<VertexArray> p_object_vao;
+	
+	std::unique_ptr<Texture> p_texture;
 
 	float object_scale[3] = { 1.f, 1.f, 1.f };
 	float object_rotation = 0.f;
@@ -208,6 +219,7 @@ namespace OrangeEngine
 
 	int Application::start(unsigned int width, unsigned int height, const char* title, char** argv)
 	{
+		ResourceLoader::createLoader(argv[0]);
 		m_pWindow = std::make_unique<Window>(title, width, height);
 		m_event_dispatcher.add_event_listener<EventWindowResize>(
 			[](EventWindowResize& event)
@@ -238,14 +250,15 @@ namespace OrangeEngine
 			return false;
 		}
 
-		BufferLayout buffer_layout_2vec3
+		BufferLayout buffer_layout
 		{
 			ShaderDataType::Float3,
-			ShaderDataType::Float3
+			ShaderDataType::Float3,
+			ShaderDataType::Float2
 		};
 
 		p_object_vao = std::make_unique<VertexArray>();
-		p_positions_and_normals_vbo = std::make_unique<VertexBuffer>(positions_and_normals, sizeof(positions_and_normals), buffer_layout_2vec3);
+		p_positions_and_normals_vbo = std::make_unique<VertexBuffer>(positions_and_normals, sizeof(positions_and_normals), buffer_layout);
 
 		p_object_vao->add_vbo(*p_positions_and_normals_vbo);
 		//p_object_vao->set_ibo(*p_ibo);
@@ -257,6 +270,8 @@ namespace OrangeEngine
 		p_directional_light = std::make_unique<DirectionalLight>(glm::vec2(-90.0f, 60.0f), light_material);
 		p_point_light = std::make_unique<PointLight>(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(1.0f, 0.14f, 0.07f), light_material);
 		p_spot_light = std::make_unique<SpotLight>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0, 0, -1), glm::vec3(1.0f, 0.14f, 0.07f), 12.5f, 17.5f, light_material);
+
+		p_texture = std::make_unique<Texture>("texture.jpg", TextureWrapType::MirroredRepeat, TextureFilterType::Linear, TextureFilterType::Linear, true, nullptr, false);
 
 		while (!m_bCloseWindow)
 		{
@@ -275,6 +290,7 @@ namespace OrangeEngine
 			p_object_shader->setVec3("view_pos", glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
 			p_object_shader->setMatrix4("model_matrix", model_matrix);
 			p_object_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+			p_texture->bind();
 
 			material.send_to_shader(p_object_shader, "material", 8);
 			//p_directional_light->send_to_shader(p_object_shader, "directional_light", 17);

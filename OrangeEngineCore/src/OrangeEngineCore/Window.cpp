@@ -1,17 +1,12 @@
 #include "OrangeEngineCore/Window.h"
 
-
-#include "OrangeEngineCore/Camera.h"
-
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
-
 #include "OrangeEngineCore/Modules/UIModule.h"
 
 #include <GLFW/glfw3.h>
 
 #include <spdlog/spdlog.h>
 #include <imgui/imgui.h>
-
 #include <glm/glm.hpp>
 
 namespace OrangeEngine

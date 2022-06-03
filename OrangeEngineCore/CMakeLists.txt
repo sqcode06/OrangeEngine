@@ -19,8 +19,10 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.h
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.h
 	src/OrangeEngineCore/Graphics/OpenGL/Material.h
+	src/OrangeEngineCore/Graphics/OpenGL/Texture.h
 	src/OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h
 	src/OrangeEngineCore/Modules/UIModule.h
+	src/OrangeEngineCore/ResourceLoader.h
 )
 
 set(ENGINE_PRIVATE_SOURCES 
@@ -35,8 +37,10 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Graphics/OpenGL/VertexArray.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/IndexBuffer.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Material.cpp
+	src/OrangeEngineCore/Graphics/OpenGL/Texture.cpp
 	src/OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.cpp
 	src/OrangeEngineCore/Modules/UIModule.cpp
+	src/OrangeEngineCore/ResourceLoader.cpp
 )
 
 set(ENGINE_ALL_SOURCES
@@ -68,6 +72,9 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)
 
 add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
+
+add_subdirectory(../external/stb_image ${CMAKE_CURRENT_BINARY_DIR}/stb_image)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE stb_image)
 
 set(IMGUI_INCLUDES
 	../external/imgui/imgui.h
