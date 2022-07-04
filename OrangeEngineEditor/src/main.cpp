@@ -6,12 +6,12 @@
 
 class OrangeEngineEditor : public OrangeEngine::Application
 {
-	void onUpdate() override
+	void on_update() override
 	{
 
 	}
 
-	void onUIDraw() override
+	void on_ui_draw() override
 	{
 		ImGui::Begin("Editor");
 		//ImGui::ColorEdit4("Background color picker", imgui_color_array);

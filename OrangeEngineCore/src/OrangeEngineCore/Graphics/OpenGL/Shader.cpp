@@ -5,18 +5,18 @@
 
 namespace OrangeEngine
 {
-	bool create_shader(const char* source, const GLenum shader_type, GLuint& shader_id)
+	bool create_shader(const char* source, const GLenum shaderType, GLuint& shaderID)
 	{
-		shader_id = glCreateShader(shader_type);
-		glShaderSource(shader_id, 1, &source, nullptr);
-		glCompileShader(shader_id);
+		shaderID = glCreateShader(shaderType);
+		glShaderSource(shaderID, 1, &source, nullptr);
+		glCompileShader(shaderID);
 
 		GLint success;
-		glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 		if (success == GL_FALSE)
 		{
 			char info_log[1024];
-			glGetShaderInfoLog(shader_id, 1024, nullptr, info_log);
+			glGetShaderInfoLog(shaderID, 1024, nullptr, info_log);
 
 			spdlog::critical("Shader compilation error:\n{}", info_log);
 			return false;
@@ -24,10 +24,10 @@ namespace OrangeEngine
 		return true;
 	}
 
-	Shader::Shader(const char* vertex_shader_src, const char* fragment_shader_src)
+	Shader::Shader(const char* vertexShaderSource, const char* fragmentShaderSource)
 	{
 		GLuint vertex_shader_id = 0;
-		if (!create_shader(vertex_shader_src, GL_VERTEX_SHADER, vertex_shader_id))
+		if (!create_shader(vertexShaderSource, GL_VERTEX_SHADER, vertex_shader_id))
 		{
 			spdlog::critical("Vertex shader: compile error!");
 			glDeleteShader(vertex_shader_id);
@@ -35,7 +35,7 @@ namespace OrangeEngine
 		}
 
 		GLuint fragment_shader_id = 0;
-		if (!create_shader(fragment_shader_src, GL_FRAGMENT_SHADER, fragment_shader_id))
+		if (!create_shader(fragmentShaderSource, GL_FRAGMENT_SHADER, fragment_shader_id))
 		{
 			spdlog::critical("Fragment shader: compile error!");
 			glDeleteShader(vertex_shader_id);
@@ -54,7 +54,7 @@ namespace OrangeEngine
 		{
 			GLchar info_log[1024];
 			glGetProgramInfoLog(m_id, 1024, nullptr, info_log);
-			spdlog::critical("SHADER PROGRAM: Link-time error:\n{0}", info_log);
+			spdlog::critical("Shader program: link-time error:\n{0}", info_log);
 			glDeleteProgram(m_id);
 			m_id = 0;
 			glDeleteShader(vertex_shader_id);
@@ -63,7 +63,7 @@ namespace OrangeEngine
 		}
 		else
 		{
-			m_isCompiled = true;
+			m_is_compiled = true;
 		}
 
 		glDetachShader(m_id, vertex_shader_id);
@@ -72,10 +72,10 @@ namespace OrangeEngine
 		glDeleteShader(fragment_shader_id);
 	}
 
-	Shader::Shader(const char* vertex_shader_src, const char* geometry_shader_src, const char* fragment_shader_src)
+	Shader::Shader(const char* vertexShaderSource, const char* geometryShaderSource, const char* fragmentShaderSource)
 	{
 		GLuint vertex_shader_id = 0;
-		if (!create_shader(vertex_shader_src, GL_VERTEX_SHADER, vertex_shader_id))
+		if (!create_shader(vertexShaderSource, GL_VERTEX_SHADER, vertex_shader_id))
 		{
 			spdlog::critical("Vertex shader: compile error!");
 			glDeleteShader(vertex_shader_id);
@@ -83,7 +83,7 @@ namespace OrangeEngine
 		}
 
 		GLuint geometry_shader_id = 0;
-		if (!create_shader(geometry_shader_src, GL_GEOMETRY_SHADER, geometry_shader_id))
+		if (!create_shader(geometryShaderSource, GL_GEOMETRY_SHADER, geometry_shader_id))
 		{
 			spdlog::critical("Geometry shader: compile error!");
 			glDeleteShader(vertex_shader_id);
@@ -92,7 +92,7 @@ namespace OrangeEngine
 		}
 
 		GLuint fragment_shader_id = 0;
-		if (!create_shader(fragment_shader_src, GL_FRAGMENT_SHADER, fragment_shader_id))
+		if (!create_shader(fragmentShaderSource, GL_FRAGMENT_SHADER, fragment_shader_id))
 		{
 			spdlog::critical("Fragment shader: compile error!");
 			glDeleteShader(vertex_shader_id);
@@ -113,7 +113,7 @@ namespace OrangeEngine
 		{
 			GLchar info_log[1024];
 			glGetProgramInfoLog(m_id, 1024, nullptr, info_log);
-			spdlog::critical("SHADER PROGRAM: Link-time error:\n{0}", info_log);
+			spdlog::critical("Shader program: link-time error:\n{0}", info_log);
 			glDeleteProgram(m_id);
 			m_id = 0;
 			glDeleteShader(vertex_shader_id);
@@ -123,7 +123,7 @@ namespace OrangeEngine
 		}
 		else
 		{
-			m_isCompiled = true;
+			m_is_compiled = true;
 		}
 
 		glDetachShader(m_id, vertex_shader_id);
@@ -153,39 +153,39 @@ namespace OrangeEngine
 	{
 		glDeleteProgram(m_id);
 		m_id = shader.m_id;
-		m_isCompiled = shader.m_isCompiled;
+		m_is_compiled = shader.m_is_compiled;
 
 		shader.m_id = 0;
-		shader.m_isCompiled = false;
+		shader.m_is_compiled = false;
 		return *this;
 	}
 
 	Shader::Shader(Shader&& shader) noexcept
 	{
 		m_id = shader.m_id;
-		m_isCompiled = shader.m_isCompiled;
+		m_is_compiled = shader.m_is_compiled;
 
 		shader.m_id = 0;
-		shader.m_isCompiled = false;
+		shader.m_is_compiled = false;
 	}
 
-	void Shader::setMatrix4(const char* name, glm::mat4& matrix) const
+	void Shader::set_float(std::string name, const GLfloat* variable) const
 	{
-		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
+		glUniform1fv(glGetUniformLocation(m_id, name.c_str()), 1, variable);
 	}
 
-	void Shader::setMatrix3(const char* name, glm::mat3& matrix) const
+	void Shader::set_vec3(std::string name, glm::vec3& vec3) const
 	{
-		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
+		glUniform3fv(glGetUniformLocation(m_id, name.c_str()), 1, glm::value_ptr(vec3));
 	}
 
-	void Shader::setVec3(const char* name, glm::vec3& vec) const
+	void Shader::set_matrix3(std::string name, glm::mat3& matrix3) const
 	{
-		glUniform3fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vec));
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix3));
 	}
 
-	void Shader::setFloat(const char* name, const GLfloat* var) const
+	void Shader::set_matrix4(std::string name, glm::mat4& matrix4) const
 	{
-		glUniform1fv(glGetUniformLocation(m_id, name), 1, var);
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix4));
 	}
 }

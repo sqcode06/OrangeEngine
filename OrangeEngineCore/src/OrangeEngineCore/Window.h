@@ -13,7 +13,7 @@ namespace OrangeEngine
 	class Window
 	{
 	public:
-		using EventCallbackFn = std::function<void(BaseEvent&)>;
+		using EventCallbackFunction = std::function<void(BaseEvent&)>;
 
 		Window(std::string title, const unsigned int width, const unsigned int height);
 		~Window();
@@ -23,14 +23,14 @@ namespace OrangeEngine
 		Window operator=(const Window&) = delete;
 		Window operator=(Window&&) = delete;
 
-		void onUpdate();
+		void on_update();
 
-		unsigned int getWidth() const { return m_data.m_width; }
-		unsigned int getHeight() const { return m_data.m_height; }
+		unsigned int get_width() const { return m_data.m_width; }
+		unsigned int get_height() const { return m_data.m_height; }
 
-		void set_event_callback(const EventCallbackFn& callback)
+		void set_event_callback(const EventCallbackFunction& callback)
 		{
-			m_data.eventCallbackFn = callback;
+			m_data.m_event_callback_function = callback;
 		}
 		
 	private:
@@ -39,13 +39,13 @@ namespace OrangeEngine
 			std::string m_title;
 			unsigned int m_width;
 			unsigned int m_height;
-			EventCallbackFn eventCallbackFn;
+			EventCallbackFunction m_event_callback_function;
 		};
 
 		int init();
 		int shutdown();
 
-		GLFWwindow* m_pWindow = nullptr;
+		GLFWwindow* m_ptr_window = nullptr;
 		WindowData m_data;
 	};
 }

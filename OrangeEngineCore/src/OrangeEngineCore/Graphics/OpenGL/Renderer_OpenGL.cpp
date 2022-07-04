@@ -1,17 +1,16 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
 namespace OrangeEngine
 {
-	bool Renderer_OpenGL::init(GLFWwindow* pWindow)
+	bool Renderer_OpenGL::init(GLFWwindow* ptrWindow)
 	{
-		glfwMakeContextCurrent(pWindow);
+		glfwMakeContextCurrent(ptrWindow);
 
 		if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 		{
@@ -23,16 +22,16 @@ namespace OrangeEngine
 		return true;
 	}
 
-	void Renderer_OpenGL::draw(const VertexArray& vertex_array, int vertices_quantity)
+	void Renderer_OpenGL::draw(const VertexArray& vertexArray, int verticesQuantity)
 	{
-		vertex_array.bind();
-		glDrawArrays(GL_TRIANGLES, 0, vertices_quantity);
+		vertexArray.bind();
+		glDrawArrays(GL_TRIANGLES, 0, verticesQuantity);
 	}
 
-	void Renderer_OpenGL::draw_elements(const VertexArray& vertex_array)
+	void Renderer_OpenGL::draw_elements(const VertexArray& vertexArray)
 	{
-		vertex_array.bind();
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vertex_array.get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
+		vertexArray.bind();
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vertexArray.get_indices_quantity()), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void Renderer_OpenGL::set_clear_color(const float red, const float green, const float blue, const float alpha)
@@ -42,18 +41,18 @@ namespace OrangeEngine
 
 	void Renderer_OpenGL::clear()
 	{
-		glIsEnabled(GL_DEPTH_TEST) ? glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) : glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void Renderer_OpenGL::enable_depth_test(int depth_func)
+	void Renderer_OpenGL::enable_depth_test(int depthFunc)
 	{
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(depth_func);
+		glDepthFunc(depthFunc);
 	}
 
-	void Renderer_OpenGL::set_viewport(const unsigned int width, const unsigned int height, const unsigned int left_offset, const unsigned int bottom_offset)
+	void Renderer_OpenGL::set_viewport(const unsigned int width, const unsigned int height, const unsigned int leftOffset, const unsigned int bottomOffset)
 	{
-		glViewport(left_offset, bottom_offset, width, height);
+		glViewport(leftOffset, bottomOffset, width, height);
 	}
 
 	const char* Renderer_OpenGL::get_vendor_str()

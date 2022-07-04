@@ -61,13 +61,13 @@ namespace OrangeEngine
 			Stream
 		};
 
-		VertexBuffer(const void* data, const size_t size, BufferLayout buffer_layout, const UsageType usage = VertexBuffer::UsageType::Static);
+		VertexBuffer(const void* data, const size_t size, BufferLayout bufferLayout, const UsageType usage = VertexBuffer::UsageType::Static);
 		~VertexBuffer();
 
 		VertexBuffer(const VertexBuffer&) = delete;
 		VertexBuffer& operator=(const VertexBuffer&) = delete;
-		VertexBuffer& operator=(VertexBuffer&& vertex_buffer) noexcept;
-		VertexBuffer(VertexBuffer&& vertex_buffer) noexcept;
+		VertexBuffer& operator=(VertexBuffer&& vertexBuffer) noexcept;
+		VertexBuffer(VertexBuffer&& vertexBuffer) noexcept;
 
 		void bind() const;
 		static void unbind();

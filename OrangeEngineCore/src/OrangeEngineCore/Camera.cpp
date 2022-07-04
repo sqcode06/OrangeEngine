@@ -1,12 +1,13 @@
 #include "OrangeEngineCore/Camera.h"
+
 #include <glm/trigonometric.hpp>
 
 namespace OrangeEngine
 {
-	Camera::Camera(const glm::vec3& position, const glm::vec3& rotation, const ProjectionMode projection_mode)
+	Camera::Camera(const glm::vec3& position, const glm::vec3& rotation, const ProjectionMode projectionMode)
 		: m_position(position),
 		  m_rotation(rotation),
-		  m_projection_mode(projection_mode)
+		  m_projection_mode(projectionMode)
 	{
 		update_view_matrix();
 		update_projection_matrix();

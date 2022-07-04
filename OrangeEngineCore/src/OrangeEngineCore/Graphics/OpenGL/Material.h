@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <string>
 
 namespace OrangeEngine
 {
@@ -13,7 +14,7 @@ namespace OrangeEngine
 	public:
 		Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, GLfloat shininess);
 
-		void send_to_shader(std::unique_ptr<Shader>& shader, const char* material_name, short name_length);
+		void send_to_shader(std::unique_ptr<Shader>& shader, std::string name);
 
 	private:
 		glm::vec3 m_ambient;

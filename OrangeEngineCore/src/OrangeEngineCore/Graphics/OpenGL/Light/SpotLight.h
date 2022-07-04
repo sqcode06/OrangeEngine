@@ -6,21 +6,22 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <string>
 
 namespace OrangeEngine
 {
 	class SpotLight
 	{
 	public:
-		SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 attenuation, GLfloat inner_cutoff, GLfloat outer_cutoff, LightMaterial light_material);
+		SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 attenuation, GLfloat innerCutoff, GLfloat outerCutoff, LightMaterial lightMaterial);
 
-		void send_to_shader(std::unique_ptr<Shader>& shader, const char* name, short name_length);
+		void send_to_shader(std::unique_ptr<Shader>& shader, std::string name);
 
 		void set_position(glm::vec3 position) { m_position = position; }
 		void set_direction(glm::vec3 direction) { m_direction = direction; }
 		void set_attenuation(glm::vec3 attenuation) { m_attenuation = attenuation; }
-		void set_inner_cutoff(GLfloat inner_cutoff) { m_inner_cutoff = glm::cos(glm::radians(inner_cutoff)); }
-		void set_cutoff(GLfloat outer_cutoff) { m_outer_cutoff = glm::cos(glm::radians(outer_cutoff)); }
+		void set_inner_cutoff(GLfloat innerCutoff) { m_inner_cutoff = glm::cos(glm::radians(innerCutoff)); }
+		void set_cutoff(GLfloat outerCutoff) { m_outer_cutoff = glm::cos(glm::radians(outerCutoff)); }
 
 		glm::vec3 get_position() const { return m_position; }
 		glm::vec3 get_direction() const { return m_direction; }

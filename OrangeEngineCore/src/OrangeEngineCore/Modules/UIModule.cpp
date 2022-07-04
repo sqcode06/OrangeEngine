@@ -3,12 +3,11 @@
 #include <imgui/imgui.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_glfw.h>
-
 #include <GLFW/glfw3.h>
 
 namespace OrangeEngine
 {
-	void UIModule::on_window_built(GLFWwindow* pWindow)
+	void UIModule::on_window_built(GLFWwindow* ptrWindow)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -18,7 +17,7 @@ namespace OrangeEngine
 		io.ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_ViewportsEnable;
 
 		ImGui_ImplOpenGL3_Init();
-		ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
+		ImGui_ImplGlfw_InitForOpenGL(ptrWindow, true);
 	}
 
 	void UIModule::on_window_destroy()

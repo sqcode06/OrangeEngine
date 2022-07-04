@@ -4,7 +4,6 @@
 #include "OrangeEngineCore/Modules/UIModule.h"
 
 #include <GLFW/glfw3.h>
-
 #include <spdlog/spdlog.h>
 #include <imgui/imgui.h>
 #include <glm/glm.hpp>
@@ -27,7 +26,7 @@ namespace OrangeEngine
 	{
 		spdlog::info("Window \"{0}\" created.", m_data.m_title);
 
-		glfwSetErrorCallback([](int error_code, const char* description)
+		glfwSetErrorCallback([](int errorCode, const char* description)
 			{
 				spdlog::critical("GLFW error: {0}", description);
 			});
@@ -37,54 +36,55 @@ namespace OrangeEngine
 			spdlog::critical("Failed to initialize GLFW.");
 			return -1;
 		}
-		m_pWindow = glfwCreateWindow(m_data.m_width, m_data.m_height, m_data.m_title.c_str(), nullptr, nullptr);
-		if (!m_pWindow)
+
+		m_ptr_window = glfwCreateWindow(m_data.m_width, m_data.m_height, m_data.m_title.c_str(), nullptr, nullptr);
+		if (!m_ptr_window)
 		{
 			spdlog::critical("Failed to create GLFW window \"{0}\"", m_data.m_title);
 			return -2;
 		}
 		
-		if (!Renderer_OpenGL::init(m_pWindow))
+		if (!Renderer_OpenGL::init(m_ptr_window))
 		{
 			spdlog::critical("Failed to initialize OpenGL renderer");
 			return -3;
 		}
 
-		glfwSetWindowUserPointer(m_pWindow, &m_data);
-		glfwSetWindowSizeCallback(m_pWindow, 
-			[](GLFWwindow* pWindow, int width, int height)
+		glfwSetWindowUserPointer(m_ptr_window, &m_data);
+		glfwSetWindowSizeCallback(m_ptr_window,
+			[](GLFWwindow* ptrWindow, int width, int height)
 			{
-				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(ptrWindow));
 				data.m_width = width;
 				data.m_height = height;
 				EventWindowResize event(width, height);
-				data.eventCallbackFn(event);
+				data.m_event_callback_function(event);
 			}
 		);
-		glfwSetCursorPosCallback(m_pWindow,
-			[](GLFWwindow* pWindow, double x, double y)
+		glfwSetCursorPosCallback(m_ptr_window,
+			[](GLFWwindow* ptrWindow, double x, double y)
 			{
-				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(ptrWindow));
 				EventMouseMoved event(x, y);
-				data.eventCallbackFn(event);
+				data.m_event_callback_function(event);
 			}
 		);
-		glfwSetWindowCloseCallback(m_pWindow,
-			[](GLFWwindow* pWindow)
+		glfwSetWindowCloseCallback(m_ptr_window,
+			[](GLFWwindow* ptrWindow)
 			{
-				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(ptrWindow));
 				EventWindowClose event;
-				data.eventCallbackFn(event);
+				data.m_event_callback_function(event);
 			}
 		);
-		glfwSetFramebufferSizeCallback(m_pWindow,
-			[](GLFWwindow* pWindow, int width, int height)
+		glfwSetFramebufferSizeCallback(m_ptr_window,
+			[](GLFWwindow* ptrWindow, int width, int height)
 			{
 				Renderer_OpenGL::set_viewport(width, height);
 			}
 		);
 
-		UIModule::on_window_built(m_pWindow);
+		UIModule::on_window_built(m_ptr_window);
 
 		Renderer_OpenGL::enable_depth_test(GL_LESS);
 
@@ -94,14 +94,14 @@ namespace OrangeEngine
 	int Window::shutdown()
 	{
 		UIModule::on_window_destroy();
-		glfwDestroyWindow(m_pWindow);
+		glfwDestroyWindow(m_ptr_window);
 		glfwTerminate();
 		return 0;
 	}
 
-	void Window::onUpdate()
+	void Window::on_update()
 	{
-		glfwSwapBuffers(m_pWindow);
+		glfwSwapBuffers(m_ptr_window);
 		glfwPollEvents();
 	}
 }

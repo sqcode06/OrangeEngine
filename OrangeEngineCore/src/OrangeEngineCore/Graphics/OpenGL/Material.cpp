@@ -11,25 +11,11 @@ namespace OrangeEngine
 		 m_shininess(shininess)
 	{}
 
-	void Material::send_to_shader(std::unique_ptr<Shader>& shader, const char* material_name, short name_length)
+	void Material::send_to_shader(std::unique_ptr<Shader>& shader, std::string name)
 	{
-		if (name_length > 32)
-		{
-			spdlog::error("Name of the material is too long, it must be no larger than 32 symbols.");
-			return;
-		}
-		char buf[42];
-		strcpy(buf, material_name);
-		strcat(buf, ".ambient");
-		shader->setVec3(buf, m_ambient);
-		strcpy(buf, material_name);
-		strcat(buf, ".diffuse");
-		shader->setVec3(buf, m_diffuse);
-		strcpy(buf, material_name);
-		strcat(buf, ".specular");
-		shader->setVec3(buf, m_specular);
-		strcpy(buf, material_name);
-		strcat(buf, ".shininess");
-		shader->setFloat(buf, &m_shininess);
+		shader->set_vec3(name + ".ambient", m_ambient);
+		shader->set_vec3(name + ".diffuse", m_diffuse);
+		shader->set_vec3(name + ".specular", m_specular);
+		shader->set_float(name + ".shininess", &m_shininess);
 	}
 }

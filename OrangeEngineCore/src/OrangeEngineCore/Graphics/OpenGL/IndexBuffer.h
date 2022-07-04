@@ -12,8 +12,8 @@ namespace OrangeEngine
 
 		IndexBuffer(const IndexBuffer&) = delete;
 		IndexBuffer& operator=(const IndexBuffer&) = delete;
-		IndexBuffer& operator=(IndexBuffer&& index_buffer) noexcept;
-		IndexBuffer(IndexBuffer&& index_buffer) noexcept;
+		IndexBuffer& operator=(IndexBuffer&& indexBuffer) noexcept;
+		IndexBuffer(IndexBuffer&& indexBuffer) noexcept;
 
 		void bind() const;
 		static void unbind();

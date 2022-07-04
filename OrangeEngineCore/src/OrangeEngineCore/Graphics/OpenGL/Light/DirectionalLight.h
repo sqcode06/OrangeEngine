@@ -6,15 +6,16 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <string>
 
 namespace OrangeEngine
 {
 	class DirectionalLight
 	{
 	public:
-		DirectionalLight(glm::vec2 angle, LightMaterial light_material);
+		DirectionalLight(glm::vec2 angle, LightMaterial lightMaterial);
 		
-		void send_to_shader(std::unique_ptr<Shader>& shader, const char* name, short name_length);
+		void send_to_shader(std::unique_ptr<Shader>& shader, std::string name);
 		void set_angle(glm::vec2 angle);
 
 	private:

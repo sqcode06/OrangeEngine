@@ -25,6 +25,8 @@ namespace OrangeEngine
 		virtual ~BaseEvent() = default;
 		virtual EventType get_type() const = 0;
 	};
+	
+	typedef std::array<std::function<void(BaseEvent&)>, static_cast<size_t>(EventType::EventsQuantity)> EventCallbackArray;
 
 	class EventDispatcher
 	{
@@ -32,29 +34,29 @@ namespace OrangeEngine
 		template<typename EventType>
 		void add_event_listener(std::function<void(EventType&)> callback)
 		{
-			auto baseCallback = [func = std::move(callback)](BaseEvent& e)
+			auto base_callback = [func = std::move(callback)](BaseEvent& e)
 			{
 				if (e.get_type() == EventType::type)
 				{
 					func(static_cast<EventType&>(e));
 				}
 			};
-			m_eventCallbacks[static_cast<size_t>(EventType::type)] = std::move(baseCallback);
+			m_event_callbacks[static_cast<size_t>(EventType::type)] = std::move(base_callback);
 		}
 
 		void dispatch(BaseEvent& event)
 		{
-			auto& callback = m_eventCallbacks[static_cast<size_t>(event.get_type())];
+			auto& callback = m_event_callbacks[static_cast<size_t>(event.get_type())];
 			if (callback) callback(event);
 		}
 
 	private:
-		std::array<std::function<void(BaseEvent&)>, static_cast<size_t>(EventType::EventsQuantity)> m_eventCallbacks;
+		EventCallbackArray m_event_callbacks;
 	};
 
 	struct EventMouseMoved : public BaseEvent
 	{
-		EventMouseMoved(const double new_x, const double new_y) : x(new_x), y(new_y) {}
+		EventMouseMoved(const double newX, const double newY) : x(newX), y(newY) {}
 
 		virtual EventType get_type() const override
 		{
@@ -69,7 +71,7 @@ namespace OrangeEngine
 
 	struct EventWindowResize : public BaseEvent
 	{
-		EventWindowResize(const unsigned int new_width, const unsigned int new_height) : width(new_width), height(new_height) {}
+		EventWindowResize(const unsigned int newWidth, const unsigned int newHeight) : width(newWidth), height(newHeight) {}
 
 		virtual EventType get_type() const override
 		{

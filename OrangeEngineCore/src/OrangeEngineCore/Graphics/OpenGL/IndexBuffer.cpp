@@ -5,7 +5,7 @@
 
 namespace OrangeEngine
 {
-	constexpr GLenum convert_usage_to_GLenum(const VertexBuffer::UsageType usage)
+	constexpr GLenum convertUsageToGLEnum(const VertexBuffer::UsageType usage)
 	{
 		switch (usage)
 		{
@@ -22,7 +22,7 @@ namespace OrangeEngine
 	{
 		glGenBuffers(1, &m_id);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, quantity * sizeof(GLuint), data, convert_usage_to_GLenum(usage));
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, quantity * sizeof(GLuint), data, convertUsageToGLEnum(usage));
 	}
 
 	IndexBuffer::~IndexBuffer()
@@ -30,21 +30,21 @@ namespace OrangeEngine
 		glDeleteBuffers(1, &m_id);
 	}
 
-	IndexBuffer& IndexBuffer::operator=(IndexBuffer&& index_buffer) noexcept
+	IndexBuffer& IndexBuffer::operator=(IndexBuffer&& indexBuffer) noexcept
 	{
-		m_id = index_buffer.m_id;
-		m_quantity = index_buffer.m_quantity;
-		index_buffer.m_id = 0;
-		index_buffer.m_quantity = 0;
+		m_id = indexBuffer.m_id;
+		m_quantity = indexBuffer.m_quantity;
+		indexBuffer.m_id = 0;
+		indexBuffer.m_quantity = 0;
 		return *this;
 	}
 
-	IndexBuffer::IndexBuffer(IndexBuffer&& index_buffer) noexcept
-		: m_id(index_buffer.m_id)
-		, m_quantity(std::move(index_buffer.m_quantity))
+	IndexBuffer::IndexBuffer(IndexBuffer&& indexBuffer) noexcept
+		: m_id(indexBuffer.m_id)
+		, m_quantity(std::move(indexBuffer.m_quantity))
 	{
-		index_buffer.m_id = 0;
-		index_buffer.m_quantity = 0;
+		indexBuffer.m_id = 0;
+		indexBuffer.m_quantity = 0;
 	}
 
 	void IndexBuffer::bind() const

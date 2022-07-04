@@ -53,7 +53,6 @@ namespace OrangeEngine
 
 	Texture::Texture(const char* fileName, TextureWrapType wrapType, TextureFilterType minFilterType, TextureFilterType magFilterType, bool useMipMap, Color* borderColor, bool hasAlpha)
 	{
-		if(strlen(fileName) > 32) return;
 		glGenTextures(1, &m_id);
 		glBindTexture(GL_TEXTURE_2D, m_id);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, convertTextureWrapTypeToGLenum(wrapType));
@@ -79,6 +78,20 @@ namespace OrangeEngine
 	Texture::~Texture()
 	{
 		glDeleteTextures(1, &m_id);
+	}
+
+	Texture& Texture::operator=(Texture&& texture) noexcept
+	{
+		glDeleteTextures(1, &m_id);
+		m_id = texture.m_id;
+		texture.m_id = 0;
+		return *this;
+	}
+
+	Texture::Texture(Texture&& texture) noexcept
+	{
+		m_id = texture.m_id;
+		texture.m_id = 0;
 	}
 
 	void Texture::bind() const

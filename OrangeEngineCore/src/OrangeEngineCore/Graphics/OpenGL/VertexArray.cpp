@@ -15,21 +15,21 @@ namespace OrangeEngine
 		glDeleteVertexArrays(1, &m_id);
 	}
 
-	VertexArray& VertexArray::operator=(VertexArray&& vertex_array) noexcept
+	VertexArray& VertexArray::operator=(VertexArray&& vertexArray) noexcept
 	{
-		m_id = vertex_array.m_id;
-		m_items_quantity = vertex_array.m_id;
-		vertex_array.m_id = 0;
-		vertex_array.m_items_quantity = 0;
+		m_id = vertexArray.m_id;
+		m_items_quantity = vertexArray.m_id;
+		vertexArray.m_id = 0;
+		vertexArray.m_items_quantity = 0;
 		return *this;
 	}
 
-	VertexArray::VertexArray(VertexArray&& vertex_array) noexcept
-		: m_id(vertex_array.m_id)
-		, m_items_quantity(vertex_array.m_items_quantity)
+	VertexArray::VertexArray(VertexArray&& vertexArray) noexcept
+		: m_id(vertexArray.m_id)
+		, m_items_quantity(vertexArray.m_items_quantity)
 	{
-		vertex_array.m_id = 0;
-		vertex_array.m_items_quantity = 0;
+		vertexArray.m_id = 0;
+		vertexArray.m_items_quantity = 0;
 	}
 
 	void VertexArray::bind() const
@@ -42,12 +42,12 @@ namespace OrangeEngine
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::add_vbo(const VertexBuffer& vertex_buffer)
+	void VertexArray::add_vbo(const VertexBuffer& vertexBuffer)
 	{
 		bind();
-		vertex_buffer.bind();
+		vertexBuffer.bind();
 
-		for (const BufferItem& current_item : vertex_buffer.get_layout().get_items())
+		for (const BufferItem& current_item : vertexBuffer.get_layout().get_items())
 		{
 			glEnableVertexAttribArray(m_items_quantity);
 			glVertexAttribPointer(
@@ -55,17 +55,17 @@ namespace OrangeEngine
 				static_cast<GLint>(current_item.components_quantity),
 				current_item.component_type,
 				GL_FALSE,
-				static_cast<GLsizei>(vertex_buffer.get_layout().get_stride()),
+				static_cast<GLsizei>(vertexBuffer.get_layout().get_stride()),
 				reinterpret_cast<const void*>(current_item.offset)
 			);
 			m_items_quantity++;
 		}
 	}
 
-	void VertexArray::set_ibo(const IndexBuffer& index_buffer)
+	void VertexArray::set_ibo(const IndexBuffer& indexBuffer)
 	{
 		bind();
-		index_buffer.bind();
-		m_indices_quantity = index_buffer.get_quantity();
+		indexBuffer.bind();
+		m_indices_quantity = indexBuffer.get_quantity();
 	}
 }

@@ -1,6 +1,6 @@
 #include "OrangeEngineCore/Application.h"
-#include "OrangeEngineCore/Window.h"
 
+#include "OrangeEngineCore/Window.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Shader.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexBuffer.h"
 #include "OrangeEngineCore/Graphics/OpenGL/VertexArray.h"
@@ -10,9 +10,7 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Material.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Texture.h"
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
-
 #include "OrangeEngineCore/Modules/UIModule.h"
-
 #include "OrangeEngineCore/ResourceLoader.h"
 
 #include <glad/glad.h>
@@ -220,7 +218,7 @@ namespace OrangeEngine
 	int Application::start(unsigned int width, unsigned int height, const char* title, char** argv)
 	{
 		ResourceLoader::createLoader(argv[0]);
-		m_pWindow = std::make_unique<Window>(title, width, height);
+		m_ptr_window = std::make_unique<Window>(title, width, height);
 		m_event_dispatcher.add_event_listener<EventWindowResize>(
 			[](EventWindowResize& event)
 			{
@@ -235,9 +233,9 @@ namespace OrangeEngine
 			[&](EventWindowClose& event)
 			{
 				spdlog::info("[EVENT] The window is successfully closed");
-				m_bCloseWindow = true;
+				m_if_close_window = true;
 			});
-		m_pWindow->set_event_callback(
+		m_ptr_window->set_event_callback(
 			[&](BaseEvent& event)
 			{
 				m_event_dispatcher.dispatch(event);
@@ -245,7 +243,7 @@ namespace OrangeEngine
 		);
 
 		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
-		if (!p_object_shader->isCompiled())
+		if (!p_object_shader->is_compiled())
 		{
 			return false;
 		}
@@ -273,7 +271,7 @@ namespace OrangeEngine
 
 		p_texture = std::make_unique<Texture>("texture.jpg", TextureWrapType::MirroredRepeat, TextureFilterType::Linear, TextureFilterType::Linear, true, nullptr, false);
 
-		while (!m_bCloseWindow)
+		while (!m_if_close_window)
 		{
 			Renderer_OpenGL::set_clear_color(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
 			Renderer_OpenGL::clear();
@@ -287,20 +285,19 @@ namespace OrangeEngine
 			camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 
 			p_object_shader->bind();
-			p_object_shader->setVec3("view_pos", glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
-			p_object_shader->setMatrix4("model_matrix", model_matrix);
-			p_object_shader->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+			p_object_shader->set_vec3("view_pos", glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
+			p_object_shader->set_matrix4("model_matrix", model_matrix);
+			p_object_shader->set_matrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 			p_texture->bind();
 
-			material.send_to_shader(p_object_shader, "material", 8);
-			//p_directional_light->send_to_shader(p_object_shader, "directional_light", 17);
-			//p_point_light->send_to_shader(p_object_shader, "point_light", 11);
-			p_spot_light->send_to_shader(p_object_shader, "spot_light", 10);
+			material.send_to_shader(p_object_shader, "material");
+			//p_directional_light->send_to_shader(p_object_shader, "directional_light");
+			//p_point_light->send_to_shader(p_object_shader, "point_light");
+			p_spot_light->send_to_shader(p_object_shader, "spot_light");
 
 			p_object_vao->bind();
 			Renderer_OpenGL::draw(*p_object_vao, 36);
 			//Renderer_OpenGL::draw_elements(*p_object_vao);
-
 
 			UIModule::on_ui_draw_begin();
 
@@ -317,15 +314,14 @@ namespace OrangeEngine
 
 			ImGui::End();
 
-			onUIDraw();
+			on_ui_draw();
 
 			UIModule::on_ui_draw_end();
 
-
-			m_pWindow->onUpdate();
-			onUpdate();
+			m_ptr_window->on_update();
+			on_update();
 		}
-		m_pWindow = nullptr;
+		m_ptr_window = nullptr;
 		return 0;
 	}
 }

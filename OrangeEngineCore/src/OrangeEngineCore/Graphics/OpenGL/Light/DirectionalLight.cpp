@@ -4,7 +4,7 @@
 
 namespace OrangeEngine
 {
-	DirectionalLight::DirectionalLight(glm::vec2 angle, LightMaterial light_material)
+	DirectionalLight::DirectionalLight(glm::vec2 angle, LightMaterial lightMaterial)
 	{
 		glm::vec4 direction(1, 0, 0, 1);
 		glm::mat4 matrix_xz;
@@ -13,7 +13,7 @@ namespace OrangeEngine
 		matrix_vy = glm::rotate(glm::mat4(1.0f), glm::radians(angle.y), glm::cross(glm::vec3(direction * matrix_xz), glm::vec3(0, 1, 0)));
 
 		m_direction = glm::vec3(direction * matrix_xz * matrix_vy);
-		m_light_material = light_material;
+		m_light_material = lightMaterial;
 	}
 
 	void DirectionalLight::set_angle(glm::vec2 angle)
@@ -27,25 +27,11 @@ namespace OrangeEngine
 		m_direction = glm::vec3(direction * matrix_xz * matrix_vy);
 	}
 
-	void DirectionalLight::send_to_shader(std::unique_ptr<Shader>& shader, const char* name, short name_length)
+	void DirectionalLight::send_to_shader(std::unique_ptr<Shader>& shader, std::string name)
 	{
-		if (name_length > 32)
-		{
-			spdlog::error("Name of the directional light is too long, it must be no larger than 32 symbols.");
-			return;
-		}
-		char buf[42];
-		strcpy(buf, name);
-		strcat(buf, ".ambient");
-		shader->setVec3(buf, m_light_material.ambient);
-		strcpy(buf, name);
-		strcat(buf, ".diffuse");
-		shader->setVec3(buf, m_light_material.diffuse);
-		strcpy(buf, name);
-		strcat(buf, ".specular");
-		shader->setVec3(buf, m_light_material.specular);
-		strcpy(buf, name);
-		strcat(buf, ".direction");
-		shader->setVec3(buf, m_direction);
+		shader->set_vec3(name + ".ambient", m_light_material.ambient);
+		shader->set_vec3(name + ".diffuse", m_light_material.diffuse);
+		shader->set_vec3(name + ".specular", m_light_material.specular);
+		shader->set_vec3(name + ".direction", m_direction);
 	}
 }

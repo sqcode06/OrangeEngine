@@ -6,15 +6,16 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <string>
 
 namespace OrangeEngine
 {
 	class PointLight
 	{
 	public:
-		PointLight(glm::vec3 position, glm::vec3 attenuation, LightMaterial light_material);
+		PointLight(glm::vec3 position, glm::vec3 attenuation, LightMaterial lightMaterial);
 
-		void send_to_shader(std::unique_ptr<Shader>& shader, const char* name, short name_length);
+		void send_to_shader(std::unique_ptr<Shader>& shader, std::string name);
 
 		void set_position(glm::vec3 position) { m_position = position; }
 		void set_attenuation(glm::vec3 attenuation) { m_attenuation = attenuation; }

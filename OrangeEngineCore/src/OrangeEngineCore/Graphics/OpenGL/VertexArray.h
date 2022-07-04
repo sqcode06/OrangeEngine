@@ -14,11 +14,11 @@ namespace OrangeEngine
 
 		VertexArray(const VertexArray&) = delete;
 		VertexArray& operator=(const VertexArray&) = delete;
-		VertexArray& operator=(VertexArray&& vertex_array) noexcept;
-		VertexArray(VertexArray&& vertex_array) noexcept;
+		VertexArray& operator=(VertexArray&& vertexArray) noexcept;
+		VertexArray(VertexArray&& vertexArray) noexcept;
 
-		void add_vbo(const VertexBuffer& vertex_buffer);
-		void set_ibo(const IndexBuffer& index_buffer);
+		void add_vbo(const VertexBuffer& vertexBuffer);
+		void set_ibo(const IndexBuffer& indexBuffer);
 		void bind() const;
 		static void unbind();
 		size_t get_indices_quantity() const { return m_indices_quantity; }

@@ -14,12 +14,12 @@ namespace OrangeEngine
 			Orthographic
 		};
 
-		Camera(const glm::vec3& position = { 0, 0, 0 }, const glm::vec3& rotation = { 0, 0, 0 }, const ProjectionMode projection_mode = ProjectionMode::Perspective);
+		Camera(const glm::vec3& position = { 0, 0, 0 }, const glm::vec3& rotation = { 0, 0, 0 }, const ProjectionMode projectionMode = ProjectionMode::Perspective);
 
 		void set_position(const glm::vec3& position);
 		void set_rotation(const glm::vec3& rotation);
 		void set_position_rotation(const glm::vec3& position, const glm::vec3& rotation);
-		void set_projection_mode(const ProjectionMode projection_mode);
+		void set_projection_mode(const ProjectionMode projectionMode);
 
 		glm::mat4 get_view_matrix() const;
 		glm::mat4 get_projection_matrix() const;

@@ -30,6 +30,11 @@ namespace OrangeEngine
 		Texture(const char* fileName, TextureWrapType wrapType, TextureFilterType minFilterType, TextureFilterType magFilterType, bool useMipMap, Color* borderColor, bool hasAlpha);
 		~Texture();
 
+		Texture(Texture&&) noexcept;
+		Texture& operator=(Texture&&) noexcept;
+		Texture(const Texture&) = delete;
+		Texture& operator=(const Texture&) = delete;
+
 		void bind() const;
 		static void unbind();
 
