@@ -1,14 +1,23 @@
 #include <iostream>
 #include <memory>
 
-#include "OrangeEngineCore/Application.h"
+#include <OrangeEngineCore/Application.h>
+#include <OrangeEngineCore/Input.h>
 #include <imgui/imgui.h>
 
 class OrangeEngineEditor : public OrangeEngine::Application
 {
-	void on_update() override
+	virtual void on_update() override
 	{
+		if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::LeftShift))
+		{
+			camera_position[1] -= 0.01f;
+		}
 
+		if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::Space))
+		{
+			camera_position[1] += 0.01f;
+		}
 	}
 
 	void on_ui_draw() override
@@ -20,7 +29,7 @@ class OrangeEngineEditor : public OrangeEngine::Application
 		//ImGui::SliderFloat3("Object position", object_position, -10.f, 10.f);
 
 		ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
-		ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
+		ImGui::SliderFloat3("Camera rotation", camera_rotation, -90.f, 90.f);
 		ImGui::Checkbox("Perspective camera", &perspective_camera);
 
 		ImGui::End();

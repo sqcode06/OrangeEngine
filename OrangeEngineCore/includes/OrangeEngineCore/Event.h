@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Keys.h"
+
 #include <functional>
 #include <array>
 
@@ -56,7 +58,10 @@ namespace OrangeEngine
 
 	struct EventMouseMoved : public BaseEvent
 	{
-		EventMouseMoved(const double newX, const double newY) : x(newX), y(newY) {}
+		EventMouseMoved(const double newX, const double newY)
+			:x(newX),
+			 y(newY)
+		{}
 
 		virtual EventType get_type() const override
 		{
@@ -71,7 +76,10 @@ namespace OrangeEngine
 
 	struct EventWindowResize : public BaseEvent
 	{
-		EventWindowResize(const unsigned int newWidth, const unsigned int newHeight) : width(newWidth), height(newHeight) {}
+		EventWindowResize(const unsigned int newWidth, const unsigned int newHeight)
+			:width(newWidth),
+			 height(newHeight)
+		{}
 
 		virtual EventType get_type() const override
 		{
@@ -92,5 +100,37 @@ namespace OrangeEngine
 		}
 
 		static const EventType type = EventType::WindowClose;
+	};
+
+	struct EventKeyPressed : public BaseEvent
+	{
+		EventKeyPressed(const KeyCode keyCode, const bool isRepeated)
+			:key_code(keyCode),
+			 is_repeated(isRepeated)
+		{}
+
+		virtual EventType get_type() const override
+		{
+			return type;
+		}
+
+		KeyCode key_code;
+		bool is_repeated;
+		static const EventType type = EventType::KeyPressed;
+	};
+
+	struct EventKeyReleased : public BaseEvent
+	{
+		EventKeyReleased(const KeyCode keyCode)
+			:key_code(keyCode)
+		{}
+
+		virtual EventType get_type() const override
+		{
+			return type;
+		}
+
+		KeyCode key_code;
+		static const EventType type = EventType::KeyReleased;
 	};
 }

@@ -12,6 +12,7 @@
 #include "OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.h"
 #include "OrangeEngineCore/Modules/UIModule.h"
 #include "OrangeEngineCore/ResourceLoader.h"
+#include "OrangeEngineCore/Input.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -234,6 +235,16 @@ namespace OrangeEngine
 			{
 				spdlog::info("[EVENT] The window is successfully closed");
 				m_if_close_window = true;
+			});
+		m_event_dispatcher.add_event_listener<EventKeyPressed>(
+			[&](EventKeyPressed& event)
+			{
+				Input::press_key(event.key_code);
+			});
+		m_event_dispatcher.add_event_listener<EventKeyReleased>(
+			[&](EventKeyReleased& event)
+			{
+				Input::release_key(event.key_code);
 			});
 		m_ptr_window->set_event_callback(
 			[&](BaseEvent& event)

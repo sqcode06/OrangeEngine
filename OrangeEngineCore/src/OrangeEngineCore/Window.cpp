@@ -77,6 +77,33 @@ namespace OrangeEngine
 				data.m_event_callback_function(event);
 			}
 		);
+		glfwSetKeyCallback(m_ptr_window,
+			[](GLFWwindow* ptrWindow, int key, int scancode, int action, int mods)
+			{
+				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(ptrWindow));
+				switch (action)
+				{
+				case GLFW_PRESS:
+				{
+					EventKeyPressed event(static_cast<KeyCode>(key), false);
+					data.m_event_callback_function(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					EventKeyReleased event(static_cast<KeyCode>(key));
+					data.m_event_callback_function(event);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					EventKeyPressed event(static_cast<KeyCode>(key), true);
+					data.m_event_callback_function(event);
+					break;
+				}
+				}
+			}
+		);
 		glfwSetFramebufferSizeCallback(m_ptr_window,
 			[](GLFWwindow* ptrWindow, int width, int height)
 			{

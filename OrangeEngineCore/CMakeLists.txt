@@ -6,6 +6,8 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/OrangeEngineCore/Application.h
 	includes/OrangeEngineCore/Event.h
 	includes/OrangeEngineCore/Camera.h
+	includes/OrangeEngineCore/Keys.h
+	includes/OrangeEngineCore/Input.h
 )
 
 set(ENGINE_PRIVATE_INCLUDES 
@@ -41,6 +43,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/OrangeEngineCore/Graphics/OpenGL/Renderer_OpenGL.cpp
 	src/OrangeEngineCore/Modules/UIModule.cpp
 	src/OrangeEngineCore/ResourceLoader.cpp
+	src/OrangeEngineCore/Input.cpp
 )
 
 set(ENGINE_ALL_SOURCES
