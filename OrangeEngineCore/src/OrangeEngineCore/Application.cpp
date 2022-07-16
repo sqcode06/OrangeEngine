@@ -216,6 +216,16 @@ namespace OrangeEngine
 		spdlog::info("Application closed. Logging session finished.");
 	}
 
+	void Application::show_cursor()
+	{
+		m_ptr_window->show_cursor();
+	}
+
+	void Application::hide_cursor()
+	{
+		m_ptr_window->hide_cursor();
+	}
+
 	int Application::start(unsigned int width, unsigned int height, const char* title, char** argv)
 	{
 		ResourceLoader::createLoader(argv[0]);
@@ -226,9 +236,20 @@ namespace OrangeEngine
 				spdlog::info("[EVENT] Changed size to {0}x{1}", event.width, event.height);
 			});
 		m_event_dispatcher.add_event_listener<EventMouseMoved>(
-			[](EventMouseMoved& event)
+			[&](EventMouseMoved& event)
 			{
 				spdlog::info("[EVENT] Cursor moved to {0}x{1}", event.x, event.y);
+				if (!is_cursor_present)
+				{
+					glm::vec3 rotation_offset{ 0, 0, 0 };
+
+					rotation_offset.x += (m_ptr_window->get_width() / 2.f - event.x) / 10.f;
+					rotation_offset.y += (m_ptr_window->get_height() / 2.f - event.y) * 16.f / 90.f;
+
+					m_ptr_window->reset_cursor();
+
+					camera.move_and_rotate(glm::vec3(0.f), rotation_offset);
+				}
 			});
 		m_event_dispatcher.add_event_listener<EventWindowClose>(
 			[&](EventWindowClose& event)

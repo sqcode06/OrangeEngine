@@ -7,11 +7,11 @@
 
 class OrangeEngineEditor : public OrangeEngine::Application
 {
-	virtual void on_update() override
-	{
-		bool move_camera = false;
-		glm::vec3 movement_offset{ 0, 0, 0 };
-		glm::vec3 rotation_offset{ 0, 0, 0 };
+    virtual void on_update() override
+    {
+        bool move_camera = false;
+        glm::vec3 movement_offset{ 0, 0, 0 };
+        glm::vec3 rotation_offset{ 0, 0, 0 };
         if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::W))
         {
             movement_offset.x += 0.05f;
@@ -42,10 +42,20 @@ class OrangeEngineEditor : public OrangeEngine::Application
             movement_offset.z -= 0.05f;
             move_camera = true;
         }
-
         if (move_camera)
         {
             camera.move_and_rotate(movement_offset, rotation_offset);
+        }
+
+        if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::F1))
+        {
+            is_cursor_present = true;
+            show_cursor();
+        }
+        if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::F2))
+        {
+            is_cursor_present = false;
+            hide_cursor();
         }
 	}
 

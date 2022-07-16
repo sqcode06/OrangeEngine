@@ -32,6 +32,10 @@ namespace OrangeEngine
 		{
 			m_data.m_event_callback_function = callback;
 		}
+
+		void show_cursor();
+		void hide_cursor();
+		void reset_cursor();
 		
 	private:
 		struct WindowData

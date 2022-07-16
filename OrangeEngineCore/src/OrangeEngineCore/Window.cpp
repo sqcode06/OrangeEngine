@@ -111,6 +111,9 @@ namespace OrangeEngine
 			}
 		);
 
+		glfwSetInputMode(m_ptr_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		reset_cursor();
+
 		UIModule::on_window_built(m_ptr_window);
 
 		Renderer_OpenGL::enable_depth_test(GL_LESS);
@@ -130,5 +133,22 @@ namespace OrangeEngine
 	{
 		glfwSwapBuffers(m_ptr_window);
 		glfwPollEvents();
+	}
+
+	void Window::show_cursor()
+	{
+		reset_cursor();
+		glfwSetInputMode(m_ptr_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
+	void Window::hide_cursor()
+	{
+		reset_cursor();
+		glfwSetInputMode(m_ptr_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+
+	void Window::reset_cursor()
+	{
+		glfwSetCursorPos(m_ptr_window, m_data.m_width / 2.f, m_data.m_height / 2.f);
 	}
 }
