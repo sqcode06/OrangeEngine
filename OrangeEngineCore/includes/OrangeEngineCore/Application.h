@@ -37,6 +37,6 @@ namespace OrangeEngine
 		std::unique_ptr<class Window> m_ptr_window;
 
 		EventDispatcher m_event_dispatcher;
-		bool m_if_close_window = false;
+		bool b_if_close_window = false;
 	};
 }

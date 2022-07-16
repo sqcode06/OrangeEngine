@@ -33,7 +33,7 @@ namespace OrangeEngine
 	{
 		if (m_projection_mode == ProjectionMode::Perspective)
 		{
-			m_projection_matrix = glm::perspective<float>(glm::radians(60.f), 16.f/9.f, 0.1f, 30.f);
+			m_projection_matrix = glm::perspective<float>(glm::radians(60.f), m_aspect, 0.1f, 30.f);
 		}
 		else
 		{
@@ -92,5 +92,10 @@ namespace OrangeEngine
 		m_position += m_up * movementOffset.z;
 		m_rotation += rotationOffset;
 		update_view_matrix();
+	}
+
+	void Camera::set_aspect(double aspect)
+	{
+		m_aspect = aspect;
 	}
 }

@@ -23,7 +23,7 @@ namespace OrangeEngine
 
 		void bind() const;
 		static void unbind();
-		bool is_compiled() const { return m_is_compiled; }
+		bool is_compiled() const { return b_is_compiled; }
 
 		void set_float(std::string name, const GLfloat* variable) const;
 		void set_vec3(std::string name, glm::vec3& vec3) const;
@@ -31,7 +31,7 @@ namespace OrangeEngine
 		void set_matrix4(std::string name, glm::mat4& matrix4) const;
 
 	private:
-		bool m_is_compiled = false;
+		bool b_is_compiled = false;
 		unsigned int m_id = 0;
 	};
 }

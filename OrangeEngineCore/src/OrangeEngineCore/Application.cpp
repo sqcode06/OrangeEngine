@@ -231,14 +231,13 @@ namespace OrangeEngine
 		ResourceLoader::createLoader(argv[0]);
 		m_ptr_window = std::make_unique<Window>(title, width, height);
 		m_event_dispatcher.add_event_listener<EventWindowResize>(
-			[](EventWindowResize& event)
+			[&](EventWindowResize& event)
 			{
-				spdlog::info("[EVENT] Changed size to {0}x{1}", event.width, event.height);
+				camera.set_aspect((float) event.width / (float) event.height);
 			});
 		m_event_dispatcher.add_event_listener<EventMouseMoved>(
 			[&](EventMouseMoved& event)
 			{
-				spdlog::info("[EVENT] Cursor moved to {0}x{1}", event.x, event.y);
 				if (!is_cursor_present)
 				{
 					glm::vec3 rotation_offset{ 0, 0, 0 };
@@ -255,7 +254,7 @@ namespace OrangeEngine
 			[&](EventWindowClose& event)
 			{
 				spdlog::info("[EVENT] The window is successfully closed");
-				m_if_close_window = true;
+				b_if_close_window = true;
 			});
 		m_event_dispatcher.add_event_listener<EventKeyPressed>(
 			[&](EventKeyPressed& event)
@@ -273,6 +272,8 @@ namespace OrangeEngine
 				m_event_dispatcher.dispatch(event);
 			}
 		);
+
+		camera.set_aspect((float) m_ptr_window->get_width() / (float) m_ptr_window->get_height());
 
 		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
 		if (!p_object_shader->is_compiled())
@@ -303,7 +304,7 @@ namespace OrangeEngine
 
 		p_texture = std::make_unique<Texture>("texture.jpg", TextureWrapType::MirroredRepeat, TextureFilterType::Linear, TextureFilterType::Linear, true, nullptr, false);
 
-		while (!m_if_close_window)
+		while (!b_if_close_window)
 		{
 			Renderer_OpenGL::set_clear_color(imgui_color_array[0], imgui_color_array[1], imgui_color_array[2], imgui_color_array[3]);
 			Renderer_OpenGL::clear();

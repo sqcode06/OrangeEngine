@@ -47,12 +47,12 @@ class OrangeEngineEditor : public OrangeEngine::Application
             camera.move_and_rotate(movement_offset, rotation_offset);
         }
 
-        if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::F1))
+        if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::F1) && !is_cursor_present)
         {
             is_cursor_present = true;
             show_cursor();
         }
-        if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::F2))
+        if (OrangeEngine::Input::is_key_pressed(OrangeEngine::KeyCode::F2) && is_cursor_present)
         {
             is_cursor_present = false;
             hide_cursor();

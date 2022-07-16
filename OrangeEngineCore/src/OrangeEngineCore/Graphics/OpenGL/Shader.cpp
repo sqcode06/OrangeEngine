@@ -63,7 +63,7 @@ namespace OrangeEngine
 		}
 		else
 		{
-			m_is_compiled = true;
+			b_is_compiled = true;
 		}
 
 		glDetachShader(m_id, vertex_shader_id);
@@ -123,7 +123,7 @@ namespace OrangeEngine
 		}
 		else
 		{
-			m_is_compiled = true;
+			b_is_compiled = true;
 		}
 
 		glDetachShader(m_id, vertex_shader_id);
@@ -153,20 +153,20 @@ namespace OrangeEngine
 	{
 		glDeleteProgram(m_id);
 		m_id = shader.m_id;
-		m_is_compiled = shader.m_is_compiled;
+		b_is_compiled = shader.b_is_compiled;
 
 		shader.m_id = 0;
-		shader.m_is_compiled = false;
+		shader.b_is_compiled = false;
 		return *this;
 	}
 
 	Shader::Shader(Shader&& shader) noexcept
 	{
 		m_id = shader.m_id;
-		m_is_compiled = shader.m_is_compiled;
+		b_is_compiled = shader.b_is_compiled;
 
 		shader.m_id = 0;
-		shader.m_is_compiled = false;
+		shader.b_is_compiled = false;
 	}
 
 	void Shader::set_float(std::string name, const GLfloat* variable) const
