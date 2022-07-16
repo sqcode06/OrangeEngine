@@ -1,6 +1,8 @@
 #include "OrangeEngineCore/Camera.h"
 
 #include <glm/trigonometric.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 namespace OrangeEngine
 {
@@ -15,56 +17,27 @@ namespace OrangeEngine
 
 	void Camera::update_view_matrix()
 	{
-		glm::mat4 translate_matrix(1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			-m_position[0], -m_position[1], -m_position[2], 1);
+		const glm::mat3 rotation_matrix_x = glm::rotate(glm::mat4(1.0f), -glm::radians(m_rotation.x), glm::vec3(1, 0, 0));
+		const glm::mat3 rotation_matrix_y = glm::rotate(glm::mat4(1.0f), -glm::radians(m_rotation.y), glm::vec3(0, 1, 0));
+		const glm::mat3 rotation_matrix_z = glm::rotate(glm::mat4(1.0f), -glm::radians(m_rotation.z), glm::vec3(0, 0, 1));
 
-		float rotate_in_rads_x = glm::radians(-m_rotation.x);
-		float rotate_in_rads_y = glm::radians(-m_rotation.y);
-		float rotate_in_rads_z = glm::radians(-m_rotation.z);
+		const glm::mat3 euler_rotation_matrix = rotation_matrix_x * rotation_matrix_y * rotation_matrix_z;
+		m_direction = glm::normalize(euler_rotation_matrix * s_world_forward);
+		m_right = glm::normalize(euler_rotation_matrix * s_world_right);
+		m_up = glm::cross(m_right, m_direction);
 
-		glm::mat4 rotate_matrix_x(1, 0, 0, 0,
-			0, cos(rotate_in_rads_x), sin(rotate_in_rads_x), 0,
-			0, -sin(rotate_in_rads_x), cos(rotate_in_rads_x), 0,
-			0, 0, 0, 1);
-
-		glm::mat4 rotate_matrix_y(cos(rotate_in_rads_y), 0, -sin(rotate_in_rads_y), 0,
-			0, 1, 0, 0,
-			sin(rotate_in_rads_y), 0, cos(rotate_in_rads_y), 0,
-			0, 0, 0, 1);
-
-		glm::mat4 rotate_matrix_z(cos(rotate_in_rads_z), sin(rotate_in_rads_z), 0, 0,
-			-sin(rotate_in_rads_z), cos(rotate_in_rads_z), 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1);
-
-		m_view_matrix = rotate_matrix_x * rotate_matrix_y * translate_matrix;
+		m_view_matrix = glm::lookAt(m_position, m_position + m_direction, m_up);
 	}
 
 	void Camera::update_projection_matrix()
 	{
 		if (m_projection_mode == ProjectionMode::Perspective)
 		{
-			float r = 0.1f;
-			float t = 0.1f;
-			float f = 10;
-			float n = 0.1f;
-			m_projection_matrix = glm::mat4(n / r, 0, 0, 0,
-				0, n / t, 0, 0,
-				0, 0, (-f - n) / (f - n), -1,
-				0, 0, -2 * f * n / (f - n), 0);
+			m_projection_matrix = glm::perspective<float>(glm::radians(60.f), 16.f/9.f, 0.1f, 30.f);
 		}
 		else
 		{
-			float r = 2;
-			float t = 2;
-			float f = 100;
-			float n = 0.1f;
-			m_projection_matrix = glm::mat4(1 / r, 0, 0, 0,
-				0, 1 / t, 0, 0,
-				0, 0, -2 / (f - n), 0,
-				0, 0, (-f - n) / (f - n), 1);
+			m_projection_matrix = glm::ortho<float>(-5.f, 5.f, -5.f, 5.f, 0.1f, 30.f);
 		}
 	}
 
@@ -87,19 +60,37 @@ namespace OrangeEngine
 		update_view_matrix();
 	}
 
-	void Camera::set_projection_mode(const ProjectionMode projection_mode)
+	void Camera::set_projection_mode(const ProjectionMode projectionMode)
 	{
-		m_projection_mode = projection_mode;
+		m_projection_mode = projectionMode;
 		update_projection_matrix();
 	}
 
-	glm::mat4 Camera::get_view_matrix() const
+	void Camera::move_forward(const float offset)
 	{
-		return m_view_matrix;
+		m_position += m_direction * offset;
+		update_view_matrix();
 	}
 
-	glm::mat4 Camera::get_projection_matrix() const
+	void Camera::move_right(const float offset)
 	{
-		return m_projection_matrix;
+		m_position += m_right * offset;
+		update_view_matrix();
+	}
+
+	void Camera::move_up(const float offset)
+	{
+		m_position += m_up * offset;
+		update_view_matrix();
+	}
+
+	void Camera::move_and_rotate(const glm::vec3& movementOffset,
+		const glm::vec3& rotationOffset)
+	{
+		m_position += m_direction * movementOffset.x;
+		m_position += m_right * movementOffset.y;
+		m_position += m_up * movementOffset.z;
+		m_rotation += rotationOffset;
+		update_view_matrix();
 	}
 }

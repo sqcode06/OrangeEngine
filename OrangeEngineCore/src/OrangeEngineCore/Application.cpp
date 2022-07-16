@@ -292,7 +292,6 @@ namespace OrangeEngine
 			model_matrix = glm::rotate(model_matrix, glm::radians(object_rotation), glm::vec3(0, 0, 1));
 			model_matrix = glm::translate(model_matrix, glm::vec3(object_position[0], object_position[1], object_position[2]));
 
-			camera.set_position_rotation(glm::vec3(camera_position[0], camera_position[1], camera_position[2]), glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
 			camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 
 			p_object_shader->bind();
