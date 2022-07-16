@@ -66,7 +66,7 @@ namespace OrangeEngine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, convertTextureFilterTypeToGLenum(magFilterType, false));
 		
 		ImageData textureData;
-		bool isLoaded = ResourceLoader::loadImage(fileName, textureData);
+		bool isLoaded = ResourceLoader::load_image(fileName, textureData);
 		if (isLoaded)
 		{
 			if (hasAlpha) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData.width, textureData.height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData.data);

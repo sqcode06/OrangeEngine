@@ -228,7 +228,7 @@ namespace OrangeEngine
 
 	int Application::start(unsigned int width, unsigned int height, const char* title, char** argv)
 	{
-		ResourceLoader::createLoader(argv[0]);
+		ResourceLoader::create_loader(argv[0]);
 		m_ptr_window = std::make_unique<Window>(title, width, height);
 		m_event_dispatcher.add_event_listener<EventWindowResize>(
 			[&](EventWindowResize& event)
@@ -240,7 +240,7 @@ namespace OrangeEngine
 			{
 				if (!is_cursor_present)
 				{
-					glm::vec3 rotation_offset{ 0, 0, 0 };
+					glm::dvec3 rotation_offset = glm::vec3(0.f);
 
 					rotation_offset.x += (m_ptr_window->get_width() / 2.f - event.x) / 10.f;
 					rotation_offset.y += (m_ptr_window->get_height() / 2.f - event.y) * 16.f / 90.f;
@@ -253,7 +253,6 @@ namespace OrangeEngine
 		m_event_dispatcher.add_event_listener<EventWindowClose>(
 			[&](EventWindowClose& event)
 			{
-				spdlog::info("[EVENT] The window is successfully closed");
 				b_if_close_window = true;
 			});
 		m_event_dispatcher.add_event_listener<EventKeyPressed>(

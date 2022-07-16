@@ -2,20 +2,20 @@
 
 namespace OrangeEngine
 {
-	bool Input::m_keys_pressed[static_cast<size_t>(KeyCode::Last)] = {};
+	bool Input::s_keys_pressed[static_cast<size_t>(KeyCode::Last)] = {};
 
 	bool Input::is_key_pressed(const KeyCode keyCode)
 	{
-		return m_keys_pressed[static_cast<size_t>(keyCode)];
+		return s_keys_pressed[static_cast<size_t>(keyCode)];
 	}
 
 	void Input::press_key(const KeyCode keyCode)
 	{
-		m_keys_pressed[static_cast<size_t>(keyCode)] = true;
+		s_keys_pressed[static_cast<size_t>(keyCode)] = true;
 	}
 
 	void Input::release_key(const KeyCode keyCode)
 	{
-		m_keys_pressed[static_cast<size_t>(keyCode)] = false;
+		s_keys_pressed[static_cast<size_t>(keyCode)] = false;
 	}
 }
