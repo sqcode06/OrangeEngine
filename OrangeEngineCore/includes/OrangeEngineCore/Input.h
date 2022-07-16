@@ -12,6 +12,6 @@ namespace OrangeEngine
 		static void release_key(const KeyCode keyCode);
 
 	private:
-		static bool m_keys_pressed[static_cast<size_t>(KeyCode::Last)];
+		static bool s_keys_pressed[static_cast<size_t>(KeyCode::Last)];
 	};
 }

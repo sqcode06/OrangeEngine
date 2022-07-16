@@ -21,12 +21,12 @@ namespace OrangeEngine
 		ResourceLoader& operator=(ResourceLoader&&) = delete;
 		ResourceLoader(ResourceLoader&&) = delete;
 
-		static void createLoader(std::string executablePath);
-		static bool loadImage(std::string fileName, ImageData& imageData);
+		static void create_loader(std::string executablePath);
+		static bool load_image(std::string fileName, ImageData& imageData);
 
-		static std::string getExecutablePath() { return m_executable_path; }
+		static std::string get_executable_path() { return s_executable_path; }
 		
 	private:
-		static std::string m_executable_path;
+		static std::string s_executable_path;
 	};
 }
