@@ -65,130 +65,6 @@ namespace OrangeEngine
 		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f
 	};
 
-	const char* vertex_shader =
-		R"(
-			#version 460
-			layout(location = 0) in vec3 vertex_position;
-			layout(location = 1) in vec3 normal_vector;
-			layout(location = 2) in vec2 texture_position;
-			uniform mat4 model_matrix;
-			uniform mat4 view_projection_matrix;
-			uniform mat3 normal_matrix;
-			out vec3 fragment_pos;
-			out vec3 normal;
-			out vec2 texture_coord;
-			void main() {
-				normal = mat3(transpose(inverse(model_matrix))) * normal_vector;
-				fragment_pos = vec3(model_matrix * vec4(vertex_position, 1.0));
-				gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
-				texture_coord = texture_position;
-			}
-		)";
-
-	const char* geometry_shader =
-		R"(
-			#version 460
-			layout(triangles) in;
-			layout(triangle_strip, max_vertices = 3) out;
-			out vec3 normal;
-			void main() {
-				vec3 a = (gl_in[1].gl_Position - gl_in[0].gl_Position).xyz;
-				vec3 b = (gl_in[2].gl_Position - gl_in[0].gl_Position).xyz;
-				vec3 N = normalize(cross(b, a));
-				for(int i = 0; i < gl_in.length(); i++)
-				{
-					gl_Position = gl_in[i].gl_Position;
-					normal = N;
-					EmitVertex();
-				}
-				EndPrimitive();
-			}
-		)";
-
-	const char* fragment_shader =
-		R"(
-			#version 460
-			uniform vec3 view_pos;
-			in vec3 normal;
-			in vec3 fragment_pos;
-			in vec2 texture_coord;
-			out vec4 frag_color;
-
-			struct Material {
-				vec3 ambient;
-				vec3 diffuse;
-				vec3 specular;
-				float shininess;
-			};
-
-			struct DirectionalLight {
-				vec3 ambient;
-				vec3 diffuse;
-				vec3 specular;
-				vec3 direction;
-			};
-
-			struct PointLight
-			{
-				vec3 ambient;
-				vec3 diffuse;
-				vec3 specular;
-				vec3 position;
-				vec3 attenuation;
-			};
-
-			struct SpotLight
-			{
-				vec3 ambient;
-				vec3 diffuse;
-				vec3 specular;
-				vec3 position;
-				vec3 direction;
-				vec3 attenuation;
-				float inner_cutoff;
-				float outer_cutoff;
-			};
-
-			uniform Material material;
-			//uniform DirectionalLight directional_light;
-			//uniform PointLight point_light;
-			uniform SpotLight spot_light;
-
-			uniform sampler2D texture_data;
-
-			void main() {
-				vec3 light_direction = normalize(spot_light.position - fragment_pos);
-				float theta = dot(light_direction, normalize(-spot_light.direction));
-				float epsilon = spot_light.inner_cutoff - spot_light.outer_cutoff;
-				float intensity = clamp((theta - spot_light.outer_cutoff) / epsilon, 0.0, 1.0);
-				float distance = length(spot_light.position - fragment_pos);
-				float att = 1.0 / (spot_light.attenuation.x + spot_light.attenuation.y * distance + spot_light.attenuation.z * (distance * distance));   
-				vec3 ambient = material.ambient * spot_light.ambient * att;
-				if(theta > spot_light.outer_cutoff)
-				{
-					float diff = max(dot(normal, light_direction), 0.0);
-					vec3 diffuse = (diff * material.diffuse) * spot_light.diffuse;
-
-					vec3 view_direction = normalize(view_pos - fragment_pos);
-					vec3 reflect_direction = reflect(-light_direction, normal); 
-					float spec = pow(max(dot(view_direction, reflect_direction), 0.0), material.shininess);
-					vec3 specular = (spec * material.specular) * spot_light.specular;
-
-					diffuse *= att;
-					specular *= att;
-
-					diffuse *= intensity;
-					specular *= intensity;
-
-					frag_color = vec4(ambient + diffuse + specular, 1.0) * texture(texture_data, texture_coord);
-				}
-				else
-				{
-					frag_color = vec4(ambient, 1.0) * texture(texture_data, texture_coord);
-				}
-			}
-		)";
-
 	std::unique_ptr<Shader> p_object_shader;
 	std::unique_ptr<VertexBuffer> p_positions_and_normals_vbo;
 	std::unique_ptr<VertexArray> p_object_vao;
@@ -274,7 +150,14 @@ namespace OrangeEngine
 
 		camera.set_aspect((float) m_ptr_window->get_width() / (float) m_ptr_window->get_height());
 
-		p_object_shader = std::make_unique<Shader>(vertex_shader, fragment_shader);
+		ShaderData shaderData;
+		if (!ResourceLoader::load_shader_data("object", true, false, shaderData))
+		{
+			spdlog::error("Failed to load shader data");
+		}
+		
+		p_object_shader = std::make_unique<Shader>(shaderData.vertex_shader.c_str(), shaderData.fragment_shader.c_str());
+
 		if (!p_object_shader->is_compiled())
 		{
 			return false;
@@ -322,9 +205,9 @@ namespace OrangeEngine
 			p_texture->bind();
 
 			material.send_to_shader(p_object_shader, "material");
-			//p_directional_light->send_to_shader(p_object_shader, "directional_light");
+			p_directional_light->send_to_shader(p_object_shader, "directional_light");
 			//p_point_light->send_to_shader(p_object_shader, "point_light");
-			p_spot_light->send_to_shader(p_object_shader, "spot_light");
+			//p_spot_light->send_to_shader(p_object_shader, "spot_light");
 
 			p_object_vao->bind();
 			Renderer_OpenGL::draw(*p_object_vao, 36);
