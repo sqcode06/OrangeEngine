@@ -41,13 +41,25 @@ namespace OrangeEngine
 
 	void Renderer_OpenGL::clear()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
 	void Renderer_OpenGL::enable_depth_test(int depthFunc)
 	{
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(depthFunc);
+	}
+
+	void Renderer_OpenGL::enable_stencil_test(char mask)
+	{
+		glEnable(GL_STENCIL_TEST);
+		glStencilMask(mask);
+	}
+
+	void Renderer_OpenGL::setup_stencil_test(int stencilFunc, int reference, char mask, int stencilFailFunc, int depthFailFunc, int depthSuccessFunc)
+	{
+		glStencilFunc(stencilFunc, reference, mask);
+		glStencilOp(stencilFailFunc, depthFailFunc, depthSuccessFunc);
 	}
 
 	void Renderer_OpenGL::set_viewport(const unsigned int width, const unsigned int height, const unsigned int leftOffset, const unsigned int bottomOffset)
